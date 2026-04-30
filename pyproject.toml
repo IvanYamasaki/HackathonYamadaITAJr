@@ -1,0 +1,9 @@
+[project]
+name = "Poker Challenge"
+version = "0.1"
+description = "A maior competição de Poker da Diretoria de Dados"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy"
+]
