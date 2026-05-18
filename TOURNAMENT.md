@@ -152,6 +152,8 @@ python3 run_tournament.py --games 500
 
 Não envie nenhum outro arquivo. Não compacte. Não altere nenhum arquivo fora da pasta `players/`.
 
+> **Prazo final: 31/05/2026.**
+
 ---
 
 ## O que seu bot pode ver: `GameView`
@@ -295,4 +297,4 @@ class MeuBot(Player):
 | Rodar torneio oficial                | `python3 run_tournament.py --heads-up`          |
 | Testar rápido                        | `python3 run_tournament.py --heads-up --games-per-matchup 200` |
 | Ver ações de cada mão (debug)        | `python3 run_tournament.py --heads-up --verbose` |
-| **Entregar**                         | **Enviar apenas `players/player_SEU_NOME.py`** |
+| **Entregar até 31/05/2026**          | **Enviar apenas `players/player_SEU_NOME.py`** |

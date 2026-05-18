@@ -28,6 +28,8 @@ Criar um arquivo `players/player_SEU_NOME.py` e implementar o método `decision(
 Só isso. Você não precisa tocar em mais nenhum arquivo.
 
 > **Entrega:** o único arquivo que você deve entregar é `players/player_SEU_NOME.py`. Nada mais.
+>
+> **Prazo final: 31/05/2026.**
 
 ---
 
@@ -128,14 +130,69 @@ PokerEntregavel/
 
 ## Conceitos de POO no projeto
 
-| Conceito | Onde aparece |
+### Abstração
+
+**O que é:** definir o "contrato" de uma classe — o que ela precisa fazer — sem dizer como.
+
+**No projeto:** a classe `Player` exige que todo bot implemente `decision()`. O motor do jogo não sabe nada sobre a estratégia do seu bot; ele só chama `decision()` e recebe um número de volta. Você cumpre o contrato, o jogo funciona.
+
+```python
+# O motor só precisa saber isso sobre qualquer bot:
+acao = player.decision(game_view)  # -1, 0 ou N > 0
+```
+
+---
+
+### Herança
+
+**O que é:** uma classe filha herda atributos e comportamentos da classe mãe, sem precisar reescrevê-los.
+
+**No projeto:** ao escrever `class MeuBot(Player)`, você ganha `name`, `chips`, `hand` e `in_game` de graça. Só precisa implementar a parte nova: a sua estratégia.
+
+```python
+class MeuBot(Player):        # herda tudo de Player automaticamente
+    def decision(self, game_view: GameView) -> int:
+        return 0             # só isso você precisa escrever
+```
+
+---
+
+### Polimorfismo
+
+**O que é:** diferentes classes respondem à mesma chamada de formas diferentes.
+
+**No projeto:** `CallerBot`, `RaiserBot` e `MeuBot` são todos `Player`. O torneio chama `player.decision(view)` para cada um da mesma forma — mas cada bot decide diferente. Mesma chamada, comportamentos distintos.
+
+```python
+for player in jogadores:
+    acao = player.decision(view)  # cada bot responde à sua maneira
+```
+
+---
+
+### Encapsulamento
+
+**O que é:** proteger dados internos, expondo só o que é necessário para quem está de fora.
+
+**No projeto:** o `GameView` é somente-leitura e não expõe as cartas dos adversários nem o deck restante. Isso é intencional — assim como no poker real, você toma decisões com informação incompleta. O motor protege o que não é seu.
+
+```python
+game_view.my_hand      # suas cartas: visível
+game_view.board        # cartas da mesa: visível
+# cartas do oponente  → encapsuladas no Game, inacessíveis
+# deck restante       → encapsulado no Game, inacessível
+```
+
+---
+
+### Resumo
+
+| Conceito | Onde aparece no projeto |
 |---|---|
-| **Abstração** | `Player.decision()` define a interface; o motor não sabe qual subclasse está usando |
-| **Herança** | `class MeuBot(Player)` — seu bot herda `name`, `chips`, `hand`, `in_game` |
-| **Polimorfismo** | O motor chama `player.decision(view)` para qualquer bot, independente da estratégia |
-| **Encapsulamento** | `GameView(frozen=True)` expõe só informações públicas; cartas dos adversários ficam ocultas |
-| **Composição** | `Game` é composto por `Board`, `FullDeck` e lista de `Player` |
-| **Data classes** | `GameView`, `PublicPlayerInfo`, `PlayerStats` usam `@dataclass` |
+| Abstração | Classe `Player` define `decision()` sem implementar |
+| Herança | `class MeuBot(Player)` herda `name`, `chips`, `hand`, `in_game` |
+| Polimorfismo | O torneio chama `decision()` igual para todos os bots |
+| Encapsulamento | `GameView` oculta cartas dos adversários e o deck |
 
 ---
 
