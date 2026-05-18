@@ -1,8 +1,13 @@
 # Poker Challenge — ITA Jr | Treinamento POO
 
-Torneio de Texas Hold'em onde cada aluno programa um bot e os bots competem entre si em milhares de partidas automáticas.
+Este repositório tem dois documentos principais:
 
-O objetivo **não** é aprender poker — é aprender **Programação Orientada a Objetos** na prática: herança, polimorfismo, abstração e encapsulamento aparecem naturalmente enquanto você implementa sua estratégia.
+- **`README.md`** (este arquivo) — explica a lógica do programa: estrutura do código, conceitos de POO aplicados e como o motor do jogo funciona.
+- **[`TOURNAMENT.md`](TOURNAMENT.md)** — explica o funcionamento do torneio: regras, formato, como criar seu bot e como entregar.
+
+> **Trainee de dados participando do torneio? Comece pelo [`README.md`](TOURNAMENT.md). para entender os conceitos de POO**
+
+> **Participante do torneio? Pode ir direto para o [`TOURNAMENT.md`](TOURNAMENT.md).** Lá estão as regras, o formato, o que seu bot pode ver e como criar e entregar o arquivo. Volte ao `README.md` caso tenha alguma dúvida especifica de código.
 
 ---
 
@@ -17,7 +22,7 @@ Criar um arquivo `players/player_SEU_NOME.py` e implementar o método `decision(
 2. Abra o arquivo e implemente decision()
 
 3. Rode o torneio:
-   python run_tournament.py
+   python run_tournament.py --heads-up
 ```
 
 Só isso. Você não precisa tocar em mais nenhum arquivo.
