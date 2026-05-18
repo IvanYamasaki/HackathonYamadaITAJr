@@ -146,6 +146,12 @@ python3 run_tournament.py --heads-up --games-per-matchup 200
 python3 run_tournament.py --games 500
 ```
 
+### 4. Entregue seu arquivo
+
+**O único entregável é o arquivo `.py` do seu bot:** `players/player_SEU_NOME.py`
+
+Não envie nenhum outro arquivo. Não compacte. Não altere nenhum arquivo fora da pasta `players/`.
+
 ---
 
 ## O que seu bot pode ver: `GameView`
@@ -289,3 +295,4 @@ class MeuBot(Player):
 | Rodar torneio oficial                | `python3 run_tournament.py --heads-up`          |
 | Testar rápido                        | `python3 run_tournament.py --heads-up --games-per-matchup 200` |
 | Ver ações de cada mão (debug)        | `python3 run_tournament.py --heads-up --verbose` |
+| **Entregar**                         | **Enviar apenas `players/player_SEU_NOME.py`** |

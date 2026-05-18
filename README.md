@@ -5,7 +5,7 @@ Este repositório tem dois documentos principais:
 - **`README.md`** (este arquivo) — explica a lógica do programa: estrutura do código, conceitos de POO aplicados e como o motor do jogo funciona.
 - **[`TOURNAMENT.md`](TOURNAMENT.md)** — explica o funcionamento do torneio: regras, formato, como criar seu bot e como entregar.
 
-> **Trainee de dados participando do torneio? Comece pelo [`README.md`](TOURNAMENT.md). para entender os conceitos de POO**
+> **Trainee de dados participando do torneio? Comece pelo [`README.md`] para entender os conceitos de POO**
 
 > **Participante do torneio? Pode ir direto para o [`TOURNAMENT.md`](TOURNAMENT.md).** Lá estão as regras, o formato, o que seu bot pode ver e como criar e entregar o arquivo. Volte ao `README.md` caso tenha alguma dúvida especifica de código.
 
@@ -26,6 +26,8 @@ Criar um arquivo `players/player_SEU_NOME.py` e implementar o método `decision(
 ```
 
 Só isso. Você não precisa tocar em mais nenhum arquivo.
+
+> **Entrega:** o único arquivo que você deve entregar é `players/player_SEU_NOME.py`. Nada mais.
 
 ---
 
