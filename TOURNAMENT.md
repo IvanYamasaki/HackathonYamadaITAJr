@@ -162,7 +162,11 @@ python3 run_tournament.py --heads-up --games-per-matchup 200
 python3 run_tournament.py --games 500
 ```
 
-### 4. Entregue seu arquivo
+### 4. Usando uma IA para ajudar
+
+O arquivo [`CONTEXTO_IA.md`](CONTEXTO_IA.md) foi criado especificamente para isso: copie o conteúdo dele e cole como contexto em qualquer IA (ChatGPT, Claude, etc.). A IA terá as regras do torneio, a API completa do `GameView` e exemplos de código prontos para adaptar.
+
+### 5. Entregue seu arquivo
 
 **O único entregável é o arquivo `.py` do seu bot:** `players/player_SEU_NOME.py`
 
@@ -314,4 +318,5 @@ class MeuBot(Player):
 | Ver ações de cada mão (debug)        | `python3 run_tournament.py --heads-up --verbose`                |
 | **Rodar Fase 1 (oficial)**           | `python3 run_tournament.py --phase1`                            |
 | **Rodar Fase 2 (oficial)**           | `python3 run_tournament.py --phase2 --bots "bot_a,bot_b,..."`   |
+| Pedir ajuda a uma IA                 | Copiar [`CONTEXTO_IA.md`](CONTEXTO_IA.md) como contexto         |
 | **Entregar v1 até 31/05/2026**       | **Enviar apenas `players/player_SEU_NOME.py`**                  |

@@ -1,9 +1,10 @@
 # Poker Challenge — ITA Jr | Treinamento POO
 
-Este repositório tem dois documentos principais:
+Este repositório tem três documentos principais:
 
 - **`README.md`** (este arquivo) — explica a lógica do programa: estrutura do código, conceitos de POO aplicados e como o motor do jogo funciona.
 - **[`TOURNAMENT.md`](TOURNAMENT.md)** — explica o funcionamento do torneio: regras, formato, como criar seu bot e como entregar.
+- **[`CONTEXTO_IA.md`](CONTEXTO_IA.md)** — arquivo para colar em uma IA (ChatGPT, Claude, etc.) e receber ajuda para implementar sua estratégia.
 
 > **Trainee de dados participando do torneio? Comece pelo [`README.md`] para entender os conceitos de POO**
 
