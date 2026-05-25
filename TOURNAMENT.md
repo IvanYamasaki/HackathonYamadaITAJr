@@ -172,7 +172,7 @@ O arquivo [`CONTEXTO_IA.md`](CONTEXTO_IA.md) foi criado especificamente para iss
 
 Não envie nenhum outro arquivo. Não compacte. Não altere nenhum arquivo fora da pasta `players/`.
 
-> **Prazo final: 31/05/2026.**
+> **Prazo v1: 07/06/2026 — Prazo v2: 14/06/2026.**
 
 ---
 
@@ -319,4 +319,5 @@ class MeuBot(Player):
 | **Rodar Fase 1 (oficial)**           | `python3 run_tournament.py --phase1`                            |
 | **Rodar Fase 2 (oficial)**           | `python3 run_tournament.py --phase2 --bots "bot_a,bot_b,..."`   |
 | Pedir ajuda a uma IA                 | Copiar [`CONTEXTO_IA.md`](CONTEXTO_IA.md) como contexto         |
-| **Entregar v1 até 31/05/2026**       | **Enviar apenas `players/player_SEU_NOME.py`**                  |
+| **Entregar v1 até 07/06/2026**       | **Enviar apenas `players/player_SEU_NOME.py`**                  |
+| **Entregar v2 até 14/06/2026**       | **Enviar apenas `players/player_SEU_NOME.py`** (versão final)   |

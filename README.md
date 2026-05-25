@@ -30,7 +30,7 @@ Só isso. Você não precisa tocar em mais nenhum arquivo.
 
 > **Entrega:** o único arquivo que você deve entregar é `players/player_SEU_NOME.py`. Nada mais.
 >
-> **Prazo final: 31/05/2026.**
+> **Prazo v1: 07/06/2026 — Prazo v2: 14/06/2026.**
 
 ---
 
