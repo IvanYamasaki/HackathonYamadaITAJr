@@ -200,28 +200,20 @@ class Game:
                 continue
 
             # Obtém decisão — passa GameView (nunca o Game diretamente)
-            action: int | None = None
+            action: int = 0
             try:
                 game_view = self._build_game_view(idx, invested)
                 action = p.decision(game_view)
-            except Exception:
-                action = None
+            except Exception as e:
+                print(f"[AVISO] {p.name} lançou exceção em decision(): {e!r}, convertido para call.")
+                action = 0
 
-            if action is None:
-                # fallback interativo
-                print(f"\nVez de {p.name}. Chips={p.chips}. Para pagar={to_call}. Aposta atual={self.current_bet}.")
-                raw = input("Ação ([f]old, [c]all/check, [r]aise TOTAL): ").strip().lower()
-                if raw in ("f", "fold"):
-                    action = -1
-                elif raw in ("c", "call", "check", ""):
-                    action = 0
-                else:
-                    # aceita "r 40" ou só "40"
-                    parts = raw.split()
-                    if parts[0] in ("r", "raise") and len(parts) >= 2:
-                        action = int(parts[1])
-                    else:
-                        action = int(parts[0])
+            if not isinstance(action, int) or isinstance(action, bool):
+                print(f"[AVISO] {p.name} retornou tipo inválido ({type(action).__name__}: {action!r}), convertido para call.")
+                action = 0
+            elif action < -1:
+                print(f"[AVISO] {p.name} retornou ação inválida ({action}), convertido para call.")
+                action = 0
 
             # Aplica ação
             if action == -1:
@@ -452,7 +444,8 @@ def find_players() -> list[Player]:
         module = importlib.util.module_from_spec(spec)
         try:
             spec.loader.exec_module(module)
-        except Exception:
+        except Exception as e:
+            print(f"  [aviso] Erro ao carregar {py_file.name}: {e}")
             continue
 
         create_fn = getattr(module, "create_player", None)
@@ -472,7 +465,8 @@ def find_players() -> list[Player]:
             else:
                 continue
             players.append(p)
-        except Exception:
+        except Exception as e:
+            print(f"  [aviso] Erro ao instanciar bot de {py_file.name}: {e}")
             continue
 
     return players
