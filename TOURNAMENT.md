@@ -2,9 +2,25 @@
 
 ## Formato
 
-O torneio usa o formato **round-robin heads-up**: cada bot enfrenta todos os outros bots em partidas individuais **1 contra 1**. Não há eliminação — todos jogam contra todos.
+O torneio tem **duas fases**, ambas no formato round-robin heads-up: cada par de bots disputa partidas individuais **1 contra 1**. Não existe chaveamento — todos jogam contra todos dentro de cada fase.
 
-Para N bots inscritos, o número de confrontos é:
+### Por que duas fases?
+
+A Fase 1 revela quais estratégias funcionam. Na virada para a Fase 2, **todos os códigos são compartilhados com os participantes**: quem avançou pode estudar os bots adversários, identificar fraquezas e atualizar sua estratégia. Isso recompensa quem sabe adaptar o bot, não só quem acertou na primeira tentativa.
+
+### Fase 1 — versão v1
+
+Todos os bots inscritos se enfrentam em round-robin. O ranking é por **pontos de confronto** (quantos adversários seu bot venceu com win rate > 50%), desempatado pelo win rate geral.
+
+**A metade superior do ranking avança para a Fase 2.** Os demais são eliminados.
+
+### Fase 2 — versão v2
+
+Os participantes classificados recebem os códigos de todos os bots da Fase 1 e podem **atualizar seu bot** antes da fase final. A Fase 2 repete o round-robin apenas entre os classificados. O leaderboard final dessa fase define a classificação geral do torneio.
+
+### Número de confrontos por fase
+
+Para N bots em uma fase, o número de confrontos é:
 
 ```
 confrontos = N × (N - 1) / 2
@@ -12,12 +28,12 @@ confrontos = N × (N - 1) / 2
 
 Exemplos:
 
-| Bots inscritos | Confrontos | Partidas totais (2000/par) |
-|:--------------:|:----------:|:--------------------------:|
-| 4              | 6          | 12.000                     |
-| 6              | 15         | 30.000                     |
-| 8              | 28         | 56.000                     |
-| 10             | 45         | 90.000                     |
+| Bots na fase | Confrontos | Partidas totais (2000/par) |
+|:------------:|:----------:|:--------------------------:|
+| 4            | 6          | 12.000                     |
+| 6            | 15         | 30.000                     |
+| 8            | 28         | 56.000                     |
+| 10           | 45         | 90.000                     |
 
 Cada confronto é disputado em **2.000 partidas**. Uma partida termina quando um dos dois bots fica sem fichas.
 
@@ -27,7 +43,7 @@ Cada confronto é disputado em **2.000 partidas**. Uma partida termina quando um
 
 ### Estrutura de uma partida
 
-Cada partida começa com ambos os bots tendo **1.000 fichas**. As mãos são jogadas em sequência até um bot zerar.
+Cada partida começa com ambos os bots tendo **5.000 fichas**. As mãos são jogadas em sequência até um bot zerar.
 
 Cada mão segue a estrutura padrão do Texas Hold'em:
 
@@ -289,12 +305,13 @@ class MeuBot(Player):
 
 ## Resumo rápido
 
-| O que fazer                          | Como fazer                                      |
-|--------------------------------------|-------------------------------------------------|
-| Criar bot                            | Copiar `player_template.py` → `player_SEU_NOME.py` |
-| Implementar estratégia               | Método `decision(self, game_view) -> int`       |
-| Registrar bot                        | Função `create_player()` no mesmo arquivo       |
-| Rodar torneio oficial                | `python3 run_tournament.py --heads-up`          |
-| Testar rápido                        | `python3 run_tournament.py --heads-up --games-per-matchup 200` |
-| Ver ações de cada mão (debug)        | `python3 run_tournament.py --heads-up --verbose` |
-| **Entregar até 31/05/2026**          | **Enviar apenas `players/player_SEU_NOME.py`** |
+| O que fazer                          | Como fazer                                                      |
+|--------------------------------------|-----------------------------------------------------------------|
+| Criar bot                            | Copiar `player_template.py` → `player_SEU_NOME.py`             |
+| Implementar estratégia               | Método `decision(self, game_view) -> int`                       |
+| Registrar bot                        | Função `create_player()` no mesmo arquivo                       |
+| Testar rápido (heads-up simples)     | `python3 run_tournament.py --heads-up --games-per-matchup 200`  |
+| Ver ações de cada mão (debug)        | `python3 run_tournament.py --heads-up --verbose`                |
+| **Rodar Fase 1 (oficial)**           | `python3 run_tournament.py --phase1`                            |
+| **Rodar Fase 2 (oficial)**           | `python3 run_tournament.py --phase2 --bots "bot_a,bot_b,..."`   |
+| **Entregar v1 até 31/05/2026**       | **Enviar apenas `players/player_SEU_NOME.py`**                  |

@@ -247,9 +247,11 @@ class HeadsUpTournament(Tournament):
         players_dir: Path,
         games_per_matchup: int = 2000,
         verbose: bool = False,
+        bot_whitelist: set[str] | None = None,
     ) -> None:
         super().__init__(players_dir=players_dir, num_games=0, verbose=verbose)
         self.games_per_matchup = games_per_matchup
+        self.bot_whitelist = bot_whitelist
         # (name_a, name_b) -> [wins_a, wins_b]
         self.results: dict[tuple[str, str], list[int, int]] = {}
 
@@ -267,13 +269,22 @@ class HeadsUpTournament(Tournament):
         from game.game import Game
 
         factories = self._load_player_factories()
+        names = [f().name for f in factories]
+
+        if self.bot_whitelist:
+            filtered = [(n, f) for n, f in zip(names, factories) if n in self.bot_whitelist]
+            unknown = self.bot_whitelist - {n for n, _ in filtered}
+            if unknown:
+                print(f"  [aviso] Bots não encontrados: {', '.join(sorted(unknown))}")
+            names = [n for n, _ in filtered]
+            factories = [f for _, f in filtered]
+
         if len(factories) < 2:
             raise RuntimeError(
                 f"Precisa de pelo menos 2 bots em {self.players_dir}/player*.py "
                 f"(encontrados: {len(factories)})"
             )
 
-        names = [f().name for f in factories]
         pairs = [(i, j) for i in range(len(names)) for j in range(i + 1, len(names))]
         total_matchups = len(pairs)
 
@@ -313,6 +324,11 @@ class HeadsUpTournament(Tournament):
 
         self.print_leaderboard()
 
+    def get_advancing_bots(self, n: int) -> list[str]:
+        """Retorna os nomes dos top-n bots pelo leaderboard (pontos de confronto, depois WR)."""
+        rows = self._build_leaderboard_rows()
+        return [name for name, *_ in rows[:n]]
+
     def print_leaderboard(self) -> None:  # type: ignore[override]
         """Imprime a matriz de confrontos e o leaderboard com IC 95%."""
         all_names = list(dict.fromkeys(n for pair in self.results for n in pair))
@@ -345,6 +361,20 @@ class HeadsUpTournament(Tournament):
         print(f"  {'#':<4} {'Bot':<22} {'Pontos':<10} {'WR geral':<12} {'IC 95%'}")
         print(f"  {'-'*57}")
 
+        rows = self._build_leaderboard_rows()
+
+        for rank, (name, mw, total_m, avg_wr, margin) in enumerate(rows, 1):
+            print(
+                f"  {rank:<4} {name:<22} {mw}/{total_m:<8} "
+                f"{avg_wr:>8.1%}    [±{margin:.1%}]"
+            )
+        print(f"{sep}\n")
+
+    # ─── Helpers privados ─────────────────────────────────────────────────
+
+    def _build_leaderboard_rows(self) -> list[tuple]:
+        """Constrói e ordena as linhas do leaderboard (pontos de confronto, depois WR)."""
+        all_names = list(dict.fromkeys(n for pair in self.results for n in pair))
         rows = []
         for name in all_names:
             matchup_wins = 0
@@ -360,17 +390,8 @@ class HeadsUpTournament(Tournament):
                 total_games += wa + wb
             avg_wr, margin = self._ci(total_game_wins, total_games)
             rows.append((name, matchup_wins, len(all_names) - 1, avg_wr, margin))
-
         rows.sort(key=lambda r: (r[1], r[3]), reverse=True)
-
-        for rank, (name, mw, total_m, avg_wr, margin) in enumerate(rows, 1):
-            print(
-                f"  {rank:<4} {name:<22} {mw}/{total_m:<8} "
-                f"{avg_wr:>8.1%}    [±{margin:.1%}]"
-            )
-        print(f"{sep}\n")
-
-    # ─── Helpers privados ─────────────────────────────────────────────────
+        return rows
 
     def _raw(self, name_a: str, name_b: str) -> tuple[int, int]:
         """Retorna (wins_a, wins_b) para o par, independente da ordem armazenada."""

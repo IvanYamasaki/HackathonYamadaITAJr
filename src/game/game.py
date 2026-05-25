@@ -19,7 +19,7 @@ class Game:
         # Stack inicial padrão (se chips já veio setado, mantém)
         for p in self.players:
             if p.chips <= 0:
-                p.chips = self.big_blind * 100
+                p.chips = self.big_blind * 500
         self.full_deck = FullDeck()
         self.board = Board()
         self.pot: int = 0
