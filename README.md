@@ -199,8 +199,8 @@ game_view.board        # cartas da mesa: visível
 
 ## Regras do Texas Hold'em simulado
 
-1. Cada jogador começa com 1000 chips (100× o big blind inicial)
-2. Blinds aumentam a cada 5 mãos (dobram)
+1. Cada jogador começa com 5.000 fichas (500× o big blind inicial)
+2. Blinds aumentam a cada 50 mãos (dobram)
 3. Sequência de cada mão: pré-flop → flop (3 cartas) → turn (4ª carta) → river (5ª carta) → showdown
 4. Vence a partida quem ficar com todos os chips
 5. O torneio roda N partidas e contabiliza vitórias e chips ganhos por bot

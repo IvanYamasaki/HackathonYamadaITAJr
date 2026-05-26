@@ -60,7 +60,7 @@ Em cada etapa há uma rodada de apostas.
 | Small blind | 5 fichas      |
 | Big blind   | 10 fichas     |
 
-Os blinds **dobram a cada 5 mãos**, forçando o jogo a terminar mesmo que nenhum bot arrisque. Não existe stack infinito — quem não jogar será eliminado pelos blinds.
+Os blinds **dobram a cada 50 mãos**, forçando o jogo a terminar mesmo que nenhum bot arrisque. Não existe stack infinito — quem não jogar será eliminado pelos blinds.
 
 ### Posições em heads-up
 
@@ -84,6 +84,8 @@ Isso é diferente do poker com múltiplos jogadores. **Posição importa muito n
 > **Detalhe do raise:** `N` é o total apostado na rodada, não o incremento.
 > Se `current_bet = 20` e você quer ir para 60, retorne `60`, não `40`.
 > Se `N < current_bet`, o jogo trata como call automaticamente.
+
+> **Validação e timeout:** o motor valida o retorno de `decision()`. Retorno de tipo errado, valor negativo diferente de `-1` ou qualquer exceção lançada pelo bot são convertidos para call com aviso no console. Além disso, cada chamada a `decision()` tem um **timeout de 50 ms** — bots que ultrapassarem esse limite também recebem call automático.
 
 ### Ranking de mãos (do menor para o maior)
 
@@ -199,7 +201,7 @@ def decision(self, game_view: GameView) -> int:
                             # to_call == 0 significa que pode dar check de graça
 
     # --- Blinds e posição ---
-    game_view.small_blind   # valor atual do small blind (dobra a cada 5 mãos)
+    game_view.small_blind   # valor atual do small blind (dobra a cada 50 mãos)
     game_view.big_blind     # valor atual do big blind
     game_view.dealer_position  # índice do dealer na lista de oponentes
 

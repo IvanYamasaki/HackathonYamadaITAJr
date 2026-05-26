@@ -44,7 +44,7 @@ def create_player() -> Player:
 
 - **Formato:** round-robin heads-up — cada bot enfrenta todos os outros em partidas 1 contra 1.
 - **Por confronto:** 2.000 partidas. Vence o confronto quem ganhar mais de 50% das partidas.
-- **Por partida:** ambos começam com **1.000 fichas**. A partida termina quando um bot fica com 0.
+- **Por partida:** ambos começam com **5.000 fichas**. A partida termina quando um bot fica com 0.
 - **Classificação:** número de confrontos vencidos; win rate geral desempata.
 
 ---
@@ -62,7 +62,7 @@ Em cada etapa há uma rodada de apostas.
 ### Blinds
 
 - Small blind: 5 fichas iniciais | Big blind: 10 fichas iniciais
-- **Os blinds dobram a cada 5 mãos.** Um bot 100% passivo é eliminado pelos blinds.
+- **Os blinds dobram a cada 50 mãos.** Um bot 100% passivo é eliminado pelos blinds.
 
 ### Posições no heads-up
 
@@ -105,6 +105,8 @@ eu_sou_sb = not eu_sou_bb
 > **Detalhe importante:** `N` é o **total apostado na rodada**, não o incremento.
 > Se `current_bet = 20` e você quer ir para `60`, retorne `60`, não `40`.
 > Se `N < current_bet`, o jogo converte automaticamente para call.
+
+> **Validação e timeout:** retorno de tipo errado, valor negativo diferente de `-1` ou exceção em `decision()` são convertidos para call com aviso no console. Cada chamada tem **timeout de 50 ms** — bots lentos (ex: Monte Carlo pesado) também recebem call automático.
 
 ---
 
