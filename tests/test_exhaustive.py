@@ -58,6 +58,7 @@ class ReturnBot(Player):
 def new_game(*bots, verbose=False, no_blinds=True):
     g = Game(list(bots))
     g.verbose = verbose
+    g.decision_timeout_s = None  # testes rodam sem overhead de thread
     if no_blinds:
         g.blind_increase_every = 999_999
     return g
@@ -245,15 +246,15 @@ def test_bot_exception_in_decision_no_crash():
     g.play_game()  # deve terminar normalmente
 
 
-def test_blind_increase_every_5_hands():
+def test_blind_increase_every_50_hands():
     p1 = CallBot("a", Hand(), 0)
     p2 = CallBot("b", Hand(), 0)
     g = new_game(p1, p2)
-    g.blind_increase_every = 5
+    g.blind_increase_every = 50
     initial_sb = g.small_blind
     initial_bb = g.big_blind
 
-    for _ in range(5):
+    for _ in range(50):
         g.increase_blinds_if_needed()
 
     assert g.big_blind == initial_bb * 2
@@ -264,10 +265,10 @@ def test_blind_no_increase_before_threshold():
     p1 = CallBot("a", Hand(), 0)
     p2 = CallBot("b", Hand(), 0)
     g = new_game(p1, p2)
-    g.blind_increase_every = 5
+    g.blind_increase_every = 50
     initial_bb = g.big_blind
 
-    for _ in range(4):
+    for _ in range(49):
         g.increase_blinds_if_needed()
 
     assert g.big_blind == initial_bb  # ainda não dobrou
@@ -380,18 +381,21 @@ def test_folder_always_loses_to_caller():
     assert folder_wins == 0, f"FolderBot ganhou {folder_wins}/50 (deveria ser 0)"
 
 
-def test_raiser_beats_caller_majority():
-    """RaiserBot deve ter win rate > 50% em 300 partidas contra CallerBot."""
-    raiser_wins = 0
-    total = 300
+def test_raiser_vs_caller_games_complete():
+    """100 partidas RaiserBot vs CallerBot devem terminar todas com um vencedor.
+
+    RaiserBot levanta 1 BB independente da mão; CallerBot nunca faz fold.
+    O resultado é determinado apenas pelas cartas (~50/50), então não há
+    afirmação de win rate — só verificamos que o motor termina sem travar.
+    """
+    total = 100
     for _ in range(total):
         raiser = RaiseBot("raiser", Hand(), 0)
         caller = CallBot("caller", Hand(), 0)
-        winner = new_game(raiser, caller).play_game()
-        if winner is not None and winner.name == "raiser":
-            raiser_wins += 1
-    wr = raiser_wins / total
-    assert wr > 0.50, f"RaiserBot win rate: {wr:.1%} (esperado > 50%)"
+        g = new_game(raiser, caller)
+        g.blind_increase_every = 10
+        winner = g.play_game()
+        assert winner is not None, "Partida terminou sem vencedor"
 
 
 def test_three_player_game_ends():

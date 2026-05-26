@@ -4,7 +4,10 @@ from inspect import signature
 from pathlib import Path
 import importlib.util
 import sys
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from cards.cards import FullDeck, Board, Hand
+
+_DECISION_TIMEOUT_S = 0.05  # 50 ms por decisão
 
 class Game:
     def __init__(self, players: list[Player]) -> None:
@@ -13,7 +16,7 @@ class Game:
         self.small_blind: int = 5
         self.big_blind: int = 10
         self.hands_played: int = 0
-        self.blind_increase_every: int = 5   # a cada N mãos
+        self.blind_increase_every: int = 50  # a cada N mãos
         self.blind_increase_factor: int = 2  # dobra
 
         # Stack inicial padrão (se chips já veio setado, mantém)
@@ -32,7 +35,11 @@ class Game:
         # Estado exposto para `Player.decision(game)`
         self.acting_player_idx: int | None = None
         self.to_call: int = 0
-        
+
+        # Timeout por decisão (segundos). None desativa — útil em testes.
+        self.decision_timeout_s: float | None = _DECISION_TIMEOUT_S
+        self._executor: ThreadPoolExecutor | None = None
+
 
     def pre_flop(self) -> None:
         # início de mão: aumenta blinds se necessário e cobra SB/BB
@@ -203,7 +210,17 @@ class Game:
             action: int = 0
             try:
                 game_view = self._build_game_view(idx, invested)
-                action = p.decision(game_view)
+                if self.decision_timeout_s is None:
+                    action = p.decision(game_view)
+                else:
+                    if self._executor is None:
+                        self._executor = ThreadPoolExecutor(max_workers=1)
+                    _fut = self._executor.submit(p.decision, game_view)
+                    try:
+                        action = _fut.result(timeout=self.decision_timeout_s)
+                    except FuturesTimeoutError:
+                        print(f"[AVISO] {p.name} excedeu {int(self.decision_timeout_s*1000)}ms em decision(), convertido para call.")
+                        action = 0
             except Exception as e:
                 print(f"[AVISO] {p.name} lançou exceção em decision(): {e!r}, convertido para call.")
                 action = 0
