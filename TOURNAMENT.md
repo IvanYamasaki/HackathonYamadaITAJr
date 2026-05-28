@@ -168,7 +168,33 @@ python3 run_tournament.py --games 500
 
 O arquivo [`CONTEXTO_IA.md`](CONTEXTO_IA.md) foi criado especificamente para isso: copie o conteúdo dele e cole como contexto em qualquer IA (ChatGPT, Claude, etc.). A IA terá as regras do torneio, a API completa do `GameView` e exemplos de código prontos para adaptar.
 
-### 5. Entregue seu arquivo
+### 5. Bibliotecas permitidas
+
+Seu bot pode importar apenas as bibliotecas da lista abaixo. Imports fora dessa lista resultam em **desclassificação automática**.
+
+#### Stdlib do Python (sem instalação)
+
+| Módulo | Uso típico |
+|--------|-----------|
+| `random` | Aleatoriedade (bluff, mixed strategy) |
+| `math` | Funções matemáticas |
+| `collections` | `Counter`, `defaultdict`, histórico compacto |
+| `statistics` | Média, desvio padrão |
+| `itertools` | Combinações de cartas |
+| `functools` | Cache de funções puras |
+| `typing` | Anotações de tipo |
+| `enum` | Enumerações |
+| `dataclasses` | Classes de dados auxiliares |
+
+#### Terceiros (instalados no ambiente do torneio)
+
+| Pacote | Uso típico |
+|--------|-----------|
+| `numpy` | Vetores, cálculos de probabilidade em lote |
+
+> **Por que essa lista?** Bibliotecas específicas de poker (como `treys` ou `pokerkit`) entregam avaliação de mãos pronta e distorcem a competição. O objetivo do torneio é desenvolver estratégia e POO, não encontrar a melhor biblioteca.
+
+### 6. Entregue seu arquivo
 
 **O único entregável é o arquivo `.py` do seu bot:** `players/player_SEU_NOME.py`
 
