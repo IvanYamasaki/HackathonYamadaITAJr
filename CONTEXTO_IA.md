@@ -333,6 +333,34 @@ python3 run_tournament.py --heads-up --verbose
 
 ---
 
+## Bibliotecas permitidas
+
+Seu bot pode importar **apenas** os módulos abaixo. Imports fora dessa lista resultam em desclassificação automática.
+
+### Stdlib do Python (sem instalação)
+
+| Módulo | Uso típico |
+|--------|-----------|
+| `random` | Aleatoriedade (bluff, mixed strategy) |
+| `math` | Funções matemáticas |
+| `collections` | `Counter`, `defaultdict`, histórico compacto |
+| `statistics` | Média, desvio padrão |
+| `itertools` | Combinações de cartas |
+| `functools` | Cache de funções puras |
+| `typing` | Anotações de tipo |
+| `enum` | Enumerações |
+| `dataclasses` | Classes de dados auxiliares |
+
+### Terceiros (instalados no ambiente do torneio)
+
+| Pacote | Uso típico |
+|--------|-----------|
+| `numpy` | Vetores, cálculos de probabilidade em lote |
+
+> Bibliotecas específicas de poker (`treys`, `pokerkit`, etc.) e de machine learning (`scikit-learn`, `torch`, etc.) **não são permitidas**.
+
+---
+
 ## Checklist antes de entregar
 
 - [ ] Arquivo nomeado `players/player_SEU_NOME.py`
@@ -341,3 +369,4 @@ python3 run_tournament.py --heads-up --verbose
 - [ ] Função `create_player()` presente no arquivo
 - [ ] Bot roda sem erros: `python3 run_tournament.py --heads-up --games-per-matchup 50`
 - [ ] Apenas um arquivo entregue — nenhum outro arquivo do repositório modificado
+- [ ] Apenas imports da whitelist (stdlib permitida + `numpy`)
