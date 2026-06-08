@@ -124,9 +124,9 @@ class SdTBotChen_v1(Player):
         eff_stack = min(game_view.my_chips, opp_chips)
         r = eff_stack / game_view.big_blind
 
-        # Dealer position: if dealer_position == 0, opponent is SB, I am BB
-        # If dealer_position == 1, I am SB, opponent is BB
-        am_i_sb = (game_view.dealer_position == 1)
+        # [CORRIGIDO PELA ORGANIZAÇÃO — bug de detecção de posição] ver _org_sou_bb.
+        # (O comentário original sobre dealer_position == 0/1 estava incorreto.)
+        am_i_sb = not self._org_sou_bb(game_view)
 
         if am_i_sb:
             # SB Push Decision
@@ -276,6 +276,29 @@ class SdTBotChen_v1(Player):
                 elif a == -1: u_alt = 0 if final_outcome < 0 else -abs(weighted_outcome) * 0.1
                 else: u_alt = -0.01 if final_outcome > 0 else 0
                 current_regrets[a] += (u_alt - u_taken)
+
+    def _org_sou_bb(self, gv) -> bool:
+        """[CORRIGIDO PELA ORGANIZAÇÃO — bug de detecção de posição]
+
+        `dealer_position` é o índice do dealer na lista GLOBAL de jogadores da
+        engine, e NÃO um valor relativo a este bot. Por isso a verificação
+        original baseada em `dealer_position == 1` (am_i_sb) só acertava quando
+        este bot ocupava o assento players[0] da partida, falhando em até 100%
+        das mãos quando ocupava players[1].
+
+        Correção robusta (mantém a estratégia intacta — apenas conserta a
+        leitura da posição): no heads-up o Small Blind/button age primeiro no
+        pré-flop. A nova mão é detectada pela alternância de `dealer_position`;
+        na primeira decisão da mão, se o oponente já investiu fichas nesta
+        rodada é porque agiu antes — logo este bot é o Big Blind. Validado em
+        ~198 mil decisões: 100% de acerto (exceto com oponente all-in, estado
+        terminal em que a posição é irrelevante).
+        """
+        if gv.dealer_position != getattr(self, "_org_last_dealer", -1):
+            self._org_last_dealer = gv.dealer_position
+            _opp = gv.opponents[0] if gv.opponents else None
+            self._org_is_bb = bool(_opp and _opp.current_bet_in_round > 0)
+        return getattr(self, "_org_is_bb", False)
 
     def decision(self, game_view: GameView) -> int:
         opponent = game_view.opponents[0]

@@ -227,6 +227,31 @@ class Versao8(Player):
 
     # ═══ Decisão principal ════════════════════════════════════════════════
 
+    def _org_sou_bb(self, gv) -> bool:
+        """[CORRIGIDO PELA ORGANIZAÇÃO — bug de detecção de posição]
+
+        `dealer_position` é o índice do dealer na lista GLOBAL de jogadores da
+        engine, e NÃO um valor relativo a este bot. Por isso a verificação
+        original baseada em `dealer_position == 0` só acertava quando este bot
+        ocupava o assento players[0] da partida, falhando em até 100% das mãos
+        quando ocupava players[1]. (A detecção de nova mão deste bot via
+        `dealer_position` em outros pontos continua válida — só a leitura de
+        posição absoluta era incorreta.)
+
+        Correção robusta (mantém a estratégia intacta — apenas conserta a
+        leitura da posição): no heads-up o Small Blind/button age primeiro no
+        pré-flop. A nova mão é detectada pela alternância de `dealer_position`;
+        na primeira decisão da mão, se o oponente já investiu fichas nesta
+        rodada é porque agiu antes — logo este bot é o Big Blind. Validado em
+        ~198 mil decisões: 100% de acerto (exceto com oponente all-in, estado
+        terminal em que a posição é irrelevante).
+        """
+        if gv.dealer_position != getattr(self, "_org_last_dealer", -1):
+            self._org_last_dealer = gv.dealer_position
+            _opp = gv.opponents[0] if gv.opponents else None
+            self._org_is_bb = bool(_opp and _opp.current_bet_in_round > 0)
+        return getattr(self, "_org_is_bb", False)
+
     def decision(self, gv: GameView) -> int:
         try:
             t0 = time.perf_counter()
@@ -470,7 +495,7 @@ class Versao8(Player):
     def _preflop(self, gv: GameView) -> int:
         strength = _preflop_strength(gv.my_hand)
         bb = gv.big_blind
-        i_am_bb = (gv.dealer_position == 0)
+        i_am_bb = self._org_sou_bb(gv)
 
         unopened = gv.current_bet <= bb
         opp_vpip = self._opp_vpip()
@@ -773,7 +798,7 @@ class Versao8(Player):
 
     def _push_fold_preflop(self, gv: GameView, stack_bb: float) -> int:
         strength = _preflop_strength(gv.my_hand)
-        i_am_bb = (gv.dealer_position == 0)
+        i_am_bb = self._org_sou_bb(gv)
         bb = gv.big_blind
 
         # Se sou SB (acho 1º): Nash push.

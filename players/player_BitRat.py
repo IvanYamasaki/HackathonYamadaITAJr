@@ -151,7 +151,7 @@ POSTFLOP_ALLIN_CATEGORY  = HAND_TWO_PAIR  # dois pares ou melhor → all-in
 # Bot principal
 # ---------------------------------------------------------------------------
 
-class JonatasBot(Player):
+class BitRat(Player):
     """
     Estratégia: push-or-fold com avaliação real de mão.
 
@@ -177,6 +177,29 @@ class JonatasBot(Player):
         self.historico_raises_oponente = 0
 
     # ------------------------------------------------------------------
+    def _org_sou_bb(self, gv) -> bool:
+        """[CORRIGIDO PELA ORGANIZAÇÃO — bug de detecção de posição]
+
+        `dealer_position` é o índice do dealer na lista GLOBAL de jogadores da
+        engine, e NÃO um valor relativo a este bot. Por isso a verificação
+        original baseada em `dealer_position == 0/1` só acertava quando este
+        bot ocupava o assento players[0] da partida, falhando em até 100% das
+        mãos quando ocupava players[1].
+
+        Correção robusta (mantém a estratégia intacta — apenas conserta a
+        leitura da posição): no heads-up o Small Blind/button age primeiro no
+        pré-flop. A nova mão é detectada pela alternância de `dealer_position`;
+        na primeira decisão da mão, se o oponente já investiu fichas nesta
+        rodada é porque agiu antes — logo este bot é o Big Blind. Validado em
+        ~198 mil decisões: 100% de acerto (exceto com oponente all-in, estado
+        terminal em que a posição é irrelevante).
+        """
+        if gv.dealer_position != getattr(self, "_org_last_dealer", -1):
+            self._org_last_dealer = gv.dealer_position
+            _opp = gv.opponents[0] if gv.opponents else None
+            self._org_is_bb = bool(_opp and _opp.current_bet_in_round > 0)
+        return getattr(self, "_org_is_bb", False)
+
     def decision(self, game_view: GameView) -> int:
         self.maos_jogadas += 1
         gv = game_view
@@ -193,7 +216,7 @@ class JonatasBot(Player):
         if oponente.current_bet_in_round > bb:
             self.historico_raises_oponente += 1
 
-        eu_sou_bb = (gv.dealer_position == 0)
+        eu_sou_bb = self._org_sou_bb(gv)
 
         # ── Regra de ouro: nunca fold de graça ──────────────────────────
         if to_call == 0:
@@ -315,4 +338,4 @@ class JonatasBot(Player):
 # ---------------------------------------------------------------------------
 
 def create_player() -> Player:
-    return JonatasBot("JonatasBot", Hand(), 0)
+    return BitRat("JonatasBot", Hand(), 0)

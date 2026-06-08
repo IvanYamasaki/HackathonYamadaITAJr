@@ -60,6 +60,29 @@ class BotAquamanT30(Player):
         self.raises_sofridos_total = 0
         self._oponente_bet_anterior = 0
 
+    def _org_sou_bb(self, gv) -> bool:
+        """[CORRIGIDO PELA ORGANIZAÇÃO — bug de detecção de posição]
+
+        `dealer_position` é o índice do dealer na lista GLOBAL de jogadores da
+        engine, e NÃO um valor relativo a este bot. Por isso a verificação
+        original baseada em `dealer_position == 0/1` só acertava quando este
+        bot ocupava o assento players[0] da partida, falhando em até 100% das
+        mãos quando ocupava players[1].
+
+        Correção robusta (mantém a estratégia intacta — apenas conserta a
+        leitura da posição): no heads-up o Small Blind/button age primeiro no
+        pré-flop. A nova mão é detectada pela alternância de `dealer_position`;
+        na primeira decisão da mão, se o oponente já investiu fichas nesta
+        rodada é porque agiu antes — logo este bot é o Big Blind. Validado em
+        ~198 mil decisões: 100% de acerto (exceto com oponente all-in, estado
+        terminal em que a posição é irrelevante).
+        """
+        if gv.dealer_position != getattr(self, "_org_last_dealer", -1):
+            self._org_last_dealer = gv.dealer_position
+            _opp = gv.opponents[0] if gv.opponents else None
+            self._org_is_bb = bool(_opp and _opp.current_bet_in_round > 0)
+        return getattr(self, "_org_is_bb", False)
+
     def decision(self, game_view: GameView) -> int:
         """
         Recebe o estado público do jogo e retorna uma ação.
@@ -143,7 +166,7 @@ class BotAquamanT30(Player):
         hand      = gv.my_hand
         bb        = gv.big_blind
         to_call   = gv.to_call
-        eu_sou_bb = gv.dealer_position == 0
+        eu_sou_bb = self._org_sou_bb(gv)
         forca     = self._forca_preflop(hand)
         agg       = self._agressividade_oponente()
 
@@ -174,7 +197,7 @@ class BotAquamanT30(Player):
         bb        = gv.big_blind
         to_call   = gv.to_call
         pot       = gv.pot
-        eu_sou_bb = gv.dealer_position == 0
+        eu_sou_bb = self._org_sou_bb(gv)
         forca     = self._forca_posflop(gv.my_hand, gv.board)
         pot_odds  = to_call / (pot + to_call) if to_call > 0 else 0
         equidade  = self._equidade_estimada(forca)

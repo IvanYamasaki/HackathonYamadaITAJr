@@ -73,11 +73,41 @@ Em cada etapa há uma rodada de apostas.
 
 A posição alterna a cada mão. Agir por último (ter posição) é vantagem enorme.
 
+> ⚠️ **Atenção — NÃO use `dealer_position == 0` para descobrir sua posição.**
+> `dealer_position` é o índice do dealer na lista **global** de jogadores da
+> engine, e **não** um valor relativo ao seu bot. A comparação `== 0` só acerta
+> quando seu bot ocupa o assento `players[0]` da partida — quando ocupa
+> `players[1]`, ela inverte a posição em **todas** as mãos. (Esse erro estava no
+> material antigo e afetou vários bots da Fase 1.)
+
+**Forma correta e robusta** — no heads-up, o Small Blind age **primeiro** no
+pré-flop. Logo, na sua primeira decisão da mão, se o oponente ainda não investiu
+nada na rodada (`opponents[0].current_bet_in_round == 0`), foi você quem agiu
+primeiro: você é o **SB**. Se ele já investiu, ele agiu antes de você: você é o
+**BB**. Detecte a nova mão pela alternância de `dealer_position` e trave o
+resultado:
+
 ```python
-# Como identificar sua posição:
-# dealer_position == 0  →  oponente é o dealer (SB)  →  você é BB
-eu_sou_bb = (game_view.dealer_position == 0)
-eu_sou_sb = not eu_sou_bb
+class MeuBot(Player):
+
+    def __init__(self, name, hand, chips):
+        super().__init__(name, hand, chips)
+        self._ultimo_dealer = -1
+        self._sou_bb = False
+
+    def sou_big_blind(self, gv: GameView) -> bool:
+        # dealer_position alterna a cada mão -> serve para detectar nova mão.
+        if gv.dealer_position != self._ultimo_dealer:
+            self._ultimo_dealer = gv.dealer_position
+            # 1ª decisão da mão: SB age primeiro (oponente com 0 investido).
+            # Se o oponente já investiu nesta rodada, ele agiu antes -> sou BB.
+            self._sou_bb = (gv.opponents[0].current_bet_in_round > 0)
+        return self._sou_bb
+
+    def decision(self, game_view: GameView) -> int:
+        eu_sou_bb = self.sou_big_blind(game_view)
+        eu_sou_sb = not eu_sou_bb
+        ...
 ```
 
 ### Ranking de mãos (do menor para o maior)
@@ -133,7 +163,9 @@ def decision(self, game_view: GameView) -> int:
     # --- Blinds e posição ---
     game_view.small_blind   # valor atual do small blind (int)
     game_view.big_blind     # valor atual do big blind (int)
-    game_view.dealer_position  # índice do dealer na lista de oponentes
+    game_view.dealer_position  # índice GLOBAL do dealer na engine — NÃO é relativo
+                            # ao seu bot. NÃO use `== 0` para achar sua posição;
+                            # veja "Posições no heads-up" para a forma correta.
 
     # --- Oponente (no heads-up: sempre 1 elemento) ---
     oponente = game_view.opponents[0]
@@ -244,22 +276,36 @@ def decision(self, game_view: GameView) -> int:
 ### 6. Estratégia com posição
 
 ```python
-def decision(self, game_view: GameView) -> int:
-    eu_sou_bb = (game_view.dealer_position == 0)
+class BotComPosicao(Player):
 
-    if eu_sou_bb and game_view.to_call == 0:
-        return 0  # nunca fold no BB sem custo adicional
+    def __init__(self, name, hand, chips):
+        super().__init__(name, hand, chips)
+        self._ultimo_dealer = -1
+        self._sou_bb = False
 
-    if not eu_sou_bb:
-        # Fora de posição (SB): jogue mais conservador
-        if game_view.to_call > game_view.big_blind * 3:
-            return -1
-    else:
-        # Em posição (BB pós-flop): pode ser mais agressivo
-        if game_view.board:  # a partir do flop
-            return game_view.current_bet + game_view.big_blind
+    def sou_big_blind(self, gv: GameView) -> bool:
+        # Forma correta de detectar a posição (ver "Posições no heads-up").
+        if gv.dealer_position != self._ultimo_dealer:
+            self._ultimo_dealer = gv.dealer_position
+            self._sou_bb = (gv.opponents[0].current_bet_in_round > 0)
+        return self._sou_bb
 
-    return 0
+    def decision(self, game_view: GameView) -> int:
+        eu_sou_bb = self.sou_big_blind(game_view)
+
+        if eu_sou_bb and game_view.to_call == 0:
+            return 0  # nunca fold no BB sem custo adicional
+
+        if not eu_sou_bb:
+            # Fora de posição (SB): jogue mais conservador
+            if game_view.to_call > game_view.big_blind * 3:
+                return -1
+        else:
+            # Em posição (BB pós-flop): pode ser mais agressivo
+            if game_view.board:  # a partir do flop
+                return game_view.current_bet + game_view.big_blind
+
+        return 0
 ```
 
 ### 7. Bot com memória de mãos anteriores
