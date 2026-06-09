@@ -3,11 +3,31 @@ from importlib import import_module
 from inspect import signature
 from pathlib import Path
 import importlib.util
+import signal
 import sys
+import threading
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from cards.cards import FullDeck, Board, Hand
 
 _DECISION_TIMEOUT_S = 0.05  # 50 ms por decisão
+
+# Timer de CPU disponível? (POSIX: setitimer/ITIMER_PROF/SIGPROF)
+_HAS_CPU_TIMER = (
+    hasattr(signal, "setitimer")
+    and hasattr(signal, "ITIMER_PROF")
+    and hasattr(signal, "SIGPROF")
+)
+
+
+class _DecisionTimeout(BaseException):
+    """
+    Sinaliza que uma decisão estourou seu orçamento de TEMPO DE CPU.
+
+    Herda de BaseException (não Exception) de propósito: assim um
+    `except Exception` dentro do bot não engole o estouro — a decisão é
+    realmente interrompida aos 50 ms de CPU, de forma justa e determinística,
+    independente da carga da máquina (ao contrário de um timeout de relógio).
+    """
 
 class Game:
     def __init__(self, players: list[Player]) -> None:
@@ -31,6 +51,12 @@ class Game:
         self.current_caller: int | None = None
         self.dealer: int = 0
         self.verbose: bool = True
+        # Silencia os avisos por-decisão (timeout/exceção/ação inválida). Útil em
+        # torneios em massa, onde bots lentos geram milhões dessas linhas.
+        self.suppress_warnings: bool = False
+        # Conta quantas decisões estouraram o timeout (forçadas a call). Permite
+        # medir se a paralelização está inflando o relógio e distorcendo resultados.
+        self.timeouts: int = 0
 
         # Estado exposto para `Player.decision(game)`
         self.acting_player_idx: int | None = None
@@ -140,6 +166,55 @@ class Game:
             opponents=opponents,
         )
 
+    # ─── Obtenção da decisão do bot, com orçamento de tempo ────────────────────
+
+    def _ask_decision(self, p: Player, game_view: "GameView") -> int:
+        """
+        Pede a decisão do bot respeitando o orçamento de `decision_timeout_s`.
+
+        Estratégia (preferindo a mais justa disponível):
+        1. Timeout de TEMPO DE CPU via SIGPROF (POSIX, thread principal): o bot é
+           interrompido de fato aos 50 ms de CPU, independente da carga da máquina.
+           Não vaza threads e dá resultados determinísticos em série ou em paralelo.
+        2. Fallback de relógio via ThreadPoolExecutor (não-POSIX, ou quando não
+           estamos na thread principal e signals não podem ser usados).
+
+        Levanta `_DecisionTimeout` (CPU) ou `FuturesTimeoutError` (relógio) no
+        estouro — tratados em bet_round como conversão para call.
+        """
+        timeout = self.decision_timeout_s
+        if timeout is None:
+            return p.decision(game_view)
+
+        # SIGPROF só pode ser armado/entregue na thread principal do processo.
+        if _HAS_CPU_TIMER and threading.current_thread() is threading.main_thread():
+            return self._decide_cpu_timed(p, game_view, timeout)
+
+        return self._decide_wall_timed(p, game_view, timeout)
+
+    def _decide_cpu_timed(self, p: Player, game_view: "GameView", timeout: float) -> int:
+        """Roda decision() interrompendo-o aos `timeout` segundos de CPU (SIGPROF)."""
+        def _on_prof(signum, frame):  # disparado dentro do código do bot
+            raise _DecisionTimeout()
+
+        old_handler = signal.signal(signal.SIGPROF, _on_prof)
+        try:
+            # Timer one-shot de tempo de CPU (user+sys) do processo.
+            signal.setitimer(signal.ITIMER_PROF, timeout)
+            try:
+                return p.decision(game_view)
+            finally:
+                signal.setitimer(signal.ITIMER_PROF, 0)  # desarma
+        finally:
+            signal.signal(signal.SIGPROF, old_handler)
+
+    def _decide_wall_timed(self, p: Player, game_view: "GameView", timeout: float) -> int:
+        """Fallback: timeout de relógio via thread auxiliar (não interrompe o bot)."""
+        if self._executor is None:
+            self._executor = ThreadPoolExecutor(max_workers=1)
+        _fut = self._executor.submit(p.decision, game_view)
+        return _fut.result(timeout=timeout)
+
     def bet_round(self) -> None:
         """
         Executa uma rodada de apostas até estabilizar (todos que continuam no jogo
@@ -210,26 +285,29 @@ class Game:
             action: int = 0
             try:
                 game_view = self._build_game_view(idx, invested)
-                if self.decision_timeout_s is None:
-                    action = p.decision(game_view)
-                else:
-                    if self._executor is None:
-                        self._executor = ThreadPoolExecutor(max_workers=1)
-                    _fut = self._executor.submit(p.decision, game_view)
-                    try:
-                        action = _fut.result(timeout=self.decision_timeout_s)
-                    except FuturesTimeoutError:
-                        print(f"[AVISO] {p.name} excedeu {int(self.decision_timeout_s*1000)}ms em decision(), convertido para call.")
-                        action = 0
+                action = self._ask_decision(p, game_view)
+            except _DecisionTimeout:
+                self.timeouts += 1
+                if not self.suppress_warnings:
+                    print(f"[AVISO] {p.name} excedeu {int(self.decision_timeout_s*1000)}ms de CPU em decision(), convertido para call.")
+                action = 0
+            except FuturesTimeoutError:
+                self.timeouts += 1
+                if not self.suppress_warnings:
+                    print(f"[AVISO] {p.name} excedeu {int(self.decision_timeout_s*1000)}ms em decision(), convertido para call.")
+                action = 0
             except Exception as e:
-                print(f"[AVISO] {p.name} lançou exceção em decision(): {e!r}, convertido para call.")
+                if not self.suppress_warnings:
+                    print(f"[AVISO] {p.name} lançou exceção em decision(): {e!r}, convertido para call.")
                 action = 0
 
             if not isinstance(action, int) or isinstance(action, bool):
-                print(f"[AVISO] {p.name} retornou tipo inválido ({type(action).__name__}: {action!r}), convertido para call.")
+                if not self.suppress_warnings:
+                    print(f"[AVISO] {p.name} retornou tipo inválido ({type(action).__name__}: {action!r}), convertido para call.")
                 action = 0
             elif action < -1:
-                print(f"[AVISO] {p.name} retornou ação inválida ({action}), convertido para call.")
+                if not self.suppress_warnings:
+                    print(f"[AVISO] {p.name} retornou ação inválida ({action}), convertido para call.")
                 action = 0
 
             # Aplica ação

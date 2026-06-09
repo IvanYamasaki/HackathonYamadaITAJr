@@ -1,0 +1,962 @@
+{
+  "phase": "Fase 1",
+  "games_per_matchup": 2000,
+  "timestamp": "20260609-102133",
+  "n_bots": 17,
+  "matchups": [
+    {
+      "a": "AdaptiveMesgus",
+      "b": "JonatasBot",
+      "wins_a": 940,
+      "wins_b": 1060
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "BotAquamanT30",
+      "wins_a": 1761,
+      "wins_b": 239
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "BotITAJr",
+      "wins_a": 1169,
+      "wins_b": 831
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "Jagas",
+      "wins_a": 1676,
+      "wins_b": 324
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "NEMESIS",
+      "wins_a": 1125,
+      "wins_b": 875
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "ITABot",
+      "wins_a": 1154,
+      "wins_b": 846
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "Vitor_Filgueiras",
+      "wins_a": 1775,
+      "wins_b": 225
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "player_bdHANDY - João Carvalho",
+      "wins_a": 894,
+      "wins_b": 1106
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "pembaBot",
+      "wins_a": 1210,
+      "wins_b": 790
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "Pinguim_Rei",
+      "wins_a": 931,
+      "wins_b": 1069
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "versao_1",
+      "wins_a": 922,
+      "wins_b": 1078
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "PinguimHunter",
+      "wins_a": 889,
+      "wins_b": 1111
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "SdTBotChen_v1",
+      "wins_a": 1695,
+      "wins_b": 305
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "SdTBotCRM_v2",
+      "wins_a": 1725,
+      "wins_b": 275
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "VelvaNeles",
+      "wins_a": 1201,
+      "wins_b": 799
+    },
+    {
+      "a": "AdaptiveMesgus",
+      "b": "versao_8",
+      "wins_a": 832,
+      "wins_b": 1168
+    },
+    {
+      "a": "JonatasBot",
+      "b": "BotAquamanT30",
+      "wins_a": 983,
+      "wins_b": 1017
+    },
+    {
+      "a": "JonatasBot",
+      "b": "BotITAJr",
+      "wins_a": 983,
+      "wins_b": 1017
+    },
+    {
+      "a": "JonatasBot",
+      "b": "Jagas",
+      "wins_a": 1408,
+      "wins_b": 592
+    },
+    {
+      "a": "JonatasBot",
+      "b": "NEMESIS",
+      "wins_a": 959,
+      "wins_b": 1041
+    },
+    {
+      "a": "JonatasBot",
+      "b": "ITABot",
+      "wins_a": 928,
+      "wins_b": 1072
+    },
+    {
+      "a": "JonatasBot",
+      "b": "Vitor_Filgueiras",
+      "wins_a": 1539,
+      "wins_b": 461
+    },
+    {
+      "a": "JonatasBot",
+      "b": "player_bdHANDY - João Carvalho",
+      "wins_a": 1059,
+      "wins_b": 941
+    },
+    {
+      "a": "JonatasBot",
+      "b": "pembaBot",
+      "wins_a": 1049,
+      "wins_b": 951
+    },
+    {
+      "a": "JonatasBot",
+      "b": "Pinguim_Rei",
+      "wins_a": 325,
+      "wins_b": 1675
+    },
+    {
+      "a": "JonatasBot",
+      "b": "versao_1",
+      "wins_a": 597,
+      "wins_b": 1403
+    },
+    {
+      "a": "JonatasBot",
+      "b": "PinguimHunter",
+      "wins_a": 613,
+      "wins_b": 1387
+    },
+    {
+      "a": "JonatasBot",
+      "b": "SdTBotChen_v1",
+      "wins_a": 1225,
+      "wins_b": 775
+    },
+    {
+      "a": "JonatasBot",
+      "b": "SdTBotCRM_v2",
+      "wins_a": 1210,
+      "wins_b": 790
+    },
+    {
+      "a": "JonatasBot",
+      "b": "VelvaNeles",
+      "wins_a": 1423,
+      "wins_b": 577
+    },
+    {
+      "a": "JonatasBot",
+      "b": "versao_8",
+      "wins_a": 792,
+      "wins_b": 1208
+    },
+    {
+      "a": "BotAquamanT30",
+      "b": "BotITAJr",
+      "wins_a": 484,
+      "wins_b": 1516
+    },
+    {
+      "a": "BotAquamanT30",
+      "b": "Jagas",
+      "wins_a": 1698,
+      "wins_b": 302
+    },
+    {
+      "a": "BotAquamanT30",
+      "b": "NEMESIS",
+      "wins_a": 808,
+      "wins_b": 1192
+    },
+    {
+      "a": "BotAquamanT30",
+      "b": "ITABot",
+      "wins_a": 687,
+      "wins_b": 1313
+    },
+    {
+      "a": "BotAquamanT30",
+      "b": "Vitor_Filgueiras",
+      "wins_a": 1477,
+      "wins_b": 523
+    },
+    {
+      "a": "BotAquamanT30",
+      "b": "player_bdHANDY - João Carvalho",
+      "wins_a": 883,
+      "wins_b": 1117
+    },
+    {
+      "a": "BotAquamanT30",
+      "b": "pembaBot",
+      "wins_a": 576,
+      "wins_b": 1424
+    },
+    {
+      "a": "BotAquamanT30",
+      "b": "Pinguim_Rei",
+      "wins_a": 723,
+      "wins_b": 1277
+    },
+    {
+      "a": "BotAquamanT30",
+      "b": "versao_1",
+      "wins_a": 641,
+      "wins_b": 1359
+    },
+    {
+      "a": "BotAquamanT30",
+      "b": "PinguimHunter",
+      "wins_a": 537,
+      "wins_b": 1463
+    },
+    {
+      "a": "BotAquamanT30",
+      "b": "SdTBotChen_v1",
+      "wins_a": 899,
+      "wins_b": 1101
+    },
+    {
+      "a": "BotAquamanT30",
+      "b": "SdTBotCRM_v2",
+      "wins_a": 872,
+      "wins_b": 1128
+    },
+    {
+      "a": "BotAquamanT30",
+      "b": "VelvaNeles",
+      "wins_a": 663,
+      "wins_b": 1337
+    },
+    {
+      "a": "BotAquamanT30",
+      "b": "versao_8",
+      "wins_a": 441,
+      "wins_b": 1559
+    },
+    {
+      "a": "BotITAJr",
+      "b": "Jagas",
+      "wins_a": 1529,
+      "wins_b": 471
+    },
+    {
+      "a": "BotITAJr",
+      "b": "NEMESIS",
+      "wins_a": 915,
+      "wins_b": 1085
+    },
+    {
+      "a": "BotITAJr",
+      "b": "ITABot",
+      "wins_a": 976,
+      "wins_b": 1024
+    },
+    {
+      "a": "BotITAJr",
+      "b": "Vitor_Filgueiras",
+      "wins_a": 1604,
+      "wins_b": 396
+    },
+    {
+      "a": "BotITAJr",
+      "b": "player_bdHANDY - João Carvalho",
+      "wins_a": 737,
+      "wins_b": 1263
+    },
+    {
+      "a": "BotITAJr",
+      "b": "pembaBot",
+      "wins_a": 988,
+      "wins_b": 1012
+    },
+    {
+      "a": "BotITAJr",
+      "b": "Pinguim_Rei",
+      "wins_a": 789,
+      "wins_b": 1211
+    },
+    {
+      "a": "BotITAJr",
+      "b": "versao_1",
+      "wins_a": 756,
+      "wins_b": 1244
+    },
+    {
+      "a": "BotITAJr",
+      "b": "PinguimHunter",
+      "wins_a": 743,
+      "wins_b": 1257
+    },
+    {
+      "a": "BotITAJr",
+      "b": "SdTBotChen_v1",
+      "wins_a": 1640,
+      "wins_b": 360
+    },
+    {
+      "a": "BotITAJr",
+      "b": "SdTBotCRM_v2",
+      "wins_a": 1767,
+      "wins_b": 233
+    },
+    {
+      "a": "BotITAJr",
+      "b": "VelvaNeles",
+      "wins_a": 1275,
+      "wins_b": 725
+    },
+    {
+      "a": "BotITAJr",
+      "b": "versao_8",
+      "wins_a": 736,
+      "wins_b": 1264
+    },
+    {
+      "a": "Jagas",
+      "b": "NEMESIS",
+      "wins_a": 174,
+      "wins_b": 1826
+    },
+    {
+      "a": "Jagas",
+      "b": "ITABot",
+      "wins_a": 383,
+      "wins_b": 1617
+    },
+    {
+      "a": "Jagas",
+      "b": "Vitor_Filgueiras",
+      "wins_a": 1300,
+      "wins_b": 700
+    },
+    {
+      "a": "Jagas",
+      "b": "player_bdHANDY - João Carvalho",
+      "wins_a": 656,
+      "wins_b": 1344
+    },
+    {
+      "a": "Jagas",
+      "b": "pembaBot",
+      "wins_a": 332,
+      "wins_b": 1668
+    },
+    {
+      "a": "Jagas",
+      "b": "Pinguim_Rei",
+      "wins_a": 259,
+      "wins_b": 1741
+    },
+    {
+      "a": "Jagas",
+      "b": "versao_1",
+      "wins_a": 242,
+      "wins_b": 1758
+    },
+    {
+      "a": "Jagas",
+      "b": "PinguimHunter",
+      "wins_a": 431,
+      "wins_b": 1569
+    },
+    {
+      "a": "Jagas",
+      "b": "SdTBotChen_v1",
+      "wins_a": 241,
+      "wins_b": 1759
+    },
+    {
+      "a": "Jagas",
+      "b": "SdTBotCRM_v2",
+      "wins_a": 223,
+      "wins_b": 1777
+    },
+    {
+      "a": "Jagas",
+      "b": "VelvaNeles",
+      "wins_a": 732,
+      "wins_b": 1268
+    },
+    {
+      "a": "Jagas",
+      "b": "versao_8",
+      "wins_a": 251,
+      "wins_b": 1749
+    },
+    {
+      "a": "NEMESIS",
+      "b": "ITABot",
+      "wins_a": 1365,
+      "wins_b": 635
+    },
+    {
+      "a": "NEMESIS",
+      "b": "Vitor_Filgueiras",
+      "wins_a": 1992,
+      "wins_b": 8
+    },
+    {
+      "a": "NEMESIS",
+      "b": "player_bdHANDY - João Carvalho",
+      "wins_a": 973,
+      "wins_b": 1027
+    },
+    {
+      "a": "NEMESIS",
+      "b": "pembaBot",
+      "wins_a": 1351,
+      "wins_b": 649
+    },
+    {
+      "a": "NEMESIS",
+      "b": "Pinguim_Rei",
+      "wins_a": 1038,
+      "wins_b": 962
+    },
+    {
+      "a": "NEMESIS",
+      "b": "versao_1",
+      "wins_a": 1055,
+      "wins_b": 945
+    },
+    {
+      "a": "NEMESIS",
+      "b": "PinguimHunter",
+      "wins_a": 954,
+      "wins_b": 1046
+    },
+    {
+      "a": "NEMESIS",
+      "b": "SdTBotChen_v1",
+      "wins_a": 1410,
+      "wins_b": 590
+    },
+    {
+      "a": "NEMESIS",
+      "b": "SdTBotCRM_v2",
+      "wins_a": 1398,
+      "wins_b": 602
+    },
+    {
+      "a": "NEMESIS",
+      "b": "VelvaNeles",
+      "wins_a": 1123,
+      "wins_b": 877
+    },
+    {
+      "a": "NEMESIS",
+      "b": "versao_8",
+      "wins_a": 855,
+      "wins_b": 1145
+    },
+    {
+      "a": "ITABot",
+      "b": "Vitor_Filgueiras",
+      "wins_a": 1726,
+      "wins_b": 274
+    },
+    {
+      "a": "ITABot",
+      "b": "player_bdHANDY - João Carvalho",
+      "wins_a": 699,
+      "wins_b": 1301
+    },
+    {
+      "a": "ITABot",
+      "b": "pembaBot",
+      "wins_a": 1048,
+      "wins_b": 952
+    },
+    {
+      "a": "ITABot",
+      "b": "Pinguim_Rei",
+      "wins_a": 845,
+      "wins_b": 1155
+    },
+    {
+      "a": "ITABot",
+      "b": "versao_1",
+      "wins_a": 663,
+      "wins_b": 1337
+    },
+    {
+      "a": "ITABot",
+      "b": "PinguimHunter",
+      "wins_a": 794,
+      "wins_b": 1206
+    },
+    {
+      "a": "ITABot",
+      "b": "SdTBotChen_v1",
+      "wins_a": 1320,
+      "wins_b": 680
+    },
+    {
+      "a": "ITABot",
+      "b": "SdTBotCRM_v2",
+      "wins_a": 1438,
+      "wins_b": 562
+    },
+    {
+      "a": "ITABot",
+      "b": "VelvaNeles",
+      "wins_a": 1275,
+      "wins_b": 725
+    },
+    {
+      "a": "ITABot",
+      "b": "versao_8",
+      "wins_a": 561,
+      "wins_b": 1439
+    },
+    {
+      "a": "Vitor_Filgueiras",
+      "b": "player_bdHANDY - João Carvalho",
+      "wins_a": 651,
+      "wins_b": 1349
+    },
+    {
+      "a": "Vitor_Filgueiras",
+      "b": "pembaBot",
+      "wins_a": 409,
+      "wins_b": 1591
+    },
+    {
+      "a": "Vitor_Filgueiras",
+      "b": "Pinguim_Rei",
+      "wins_a": 263,
+      "wins_b": 1737
+    },
+    {
+      "a": "Vitor_Filgueiras",
+      "b": "versao_1",
+      "wins_a": 407,
+      "wins_b": 1593
+    },
+    {
+      "a": "Vitor_Filgueiras",
+      "b": "PinguimHunter",
+      "wins_a": 814,
+      "wins_b": 1186
+    },
+    {
+      "a": "Vitor_Filgueiras",
+      "b": "SdTBotChen_v1",
+      "wins_a": 97,
+      "wins_b": 1903
+    },
+    {
+      "a": "Vitor_Filgueiras",
+      "b": "SdTBotCRM_v2",
+      "wins_a": 103,
+      "wins_b": 1897
+    },
+    {
+      "a": "Vitor_Filgueiras",
+      "b": "VelvaNeles",
+      "wins_a": 283,
+      "wins_b": 1717
+    },
+    {
+      "a": "Vitor_Filgueiras",
+      "b": "versao_8",
+      "wins_a": 200,
+      "wins_b": 1800
+    },
+    {
+      "a": "player_bdHANDY - João Carvalho",
+      "b": "pembaBot",
+      "wins_a": 1290,
+      "wins_b": 710
+    },
+    {
+      "a": "player_bdHANDY - João Carvalho",
+      "b": "Pinguim_Rei",
+      "wins_a": 1007,
+      "wins_b": 993
+    },
+    {
+      "a": "player_bdHANDY - João Carvalho",
+      "b": "versao_1",
+      "wins_a": 902,
+      "wins_b": 1098
+    },
+    {
+      "a": "player_bdHANDY - João Carvalho",
+      "b": "PinguimHunter",
+      "wins_a": 1030,
+      "wins_b": 970
+    },
+    {
+      "a": "player_bdHANDY - João Carvalho",
+      "b": "SdTBotChen_v1",
+      "wins_a": 1179,
+      "wins_b": 821
+    },
+    {
+      "a": "player_bdHANDY - João Carvalho",
+      "b": "SdTBotCRM_v2",
+      "wins_a": 1203,
+      "wins_b": 797
+    },
+    {
+      "a": "player_bdHANDY - João Carvalho",
+      "b": "VelvaNeles",
+      "wins_a": 1117,
+      "wins_b": 883
+    },
+    {
+      "a": "player_bdHANDY - João Carvalho",
+      "b": "versao_8",
+      "wins_a": 917,
+      "wins_b": 1083
+    },
+    {
+      "a": "pembaBot",
+      "b": "Pinguim_Rei",
+      "wins_a": 854,
+      "wins_b": 1146
+    },
+    {
+      "a": "pembaBot",
+      "b": "versao_1",
+      "wins_a": 649,
+      "wins_b": 1351
+    },
+    {
+      "a": "pembaBot",
+      "b": "PinguimHunter",
+      "wins_a": 760,
+      "wins_b": 1240
+    },
+    {
+      "a": "pembaBot",
+      "b": "SdTBotChen_v1",
+      "wins_a": 1399,
+      "wins_b": 601
+    },
+    {
+      "a": "pembaBot",
+      "b": "SdTBotCRM_v2",
+      "wins_a": 1408,
+      "wins_b": 592
+    },
+    {
+      "a": "pembaBot",
+      "b": "VelvaNeles",
+      "wins_a": 1227,
+      "wins_b": 773
+    },
+    {
+      "a": "pembaBot",
+      "b": "versao_8",
+      "wins_a": 622,
+      "wins_b": 1378
+    },
+    {
+      "a": "Pinguim_Rei",
+      "b": "versao_1",
+      "wins_a": 1162,
+      "wins_b": 838
+    },
+    {
+      "a": "Pinguim_Rei",
+      "b": "PinguimHunter",
+      "wins_a": 1218,
+      "wins_b": 782
+    },
+    {
+      "a": "Pinguim_Rei",
+      "b": "SdTBotChen_v1",
+      "wins_a": 1560,
+      "wins_b": 440
+    },
+    {
+      "a": "Pinguim_Rei",
+      "b": "SdTBotCRM_v2",
+      "wins_a": 1512,
+      "wins_b": 488
+    },
+    {
+      "a": "Pinguim_Rei",
+      "b": "VelvaNeles",
+      "wins_a": 1729,
+      "wins_b": 271
+    },
+    {
+      "a": "Pinguim_Rei",
+      "b": "versao_8",
+      "wins_a": 1019,
+      "wins_b": 981
+    },
+    {
+      "a": "versao_1",
+      "b": "PinguimHunter",
+      "wins_a": 1103,
+      "wins_b": 897
+    },
+    {
+      "a": "versao_1",
+      "b": "SdTBotChen_v1",
+      "wins_a": 1391,
+      "wins_b": 609
+    },
+    {
+      "a": "versao_1",
+      "b": "SdTBotCRM_v2",
+      "wins_a": 1463,
+      "wins_b": 537
+    },
+    {
+      "a": "versao_1",
+      "b": "VelvaNeles",
+      "wins_a": 1584,
+      "wins_b": 416
+    },
+    {
+      "a": "versao_1",
+      "b": "versao_8",
+      "wins_a": 836,
+      "wins_b": 1164
+    },
+    {
+      "a": "PinguimHunter",
+      "b": "SdTBotChen_v1",
+      "wins_a": 1588,
+      "wins_b": 412
+    },
+    {
+      "a": "PinguimHunter",
+      "b": "SdTBotCRM_v2",
+      "wins_a": 1637,
+      "wins_b": 363
+    },
+    {
+      "a": "PinguimHunter",
+      "b": "VelvaNeles",
+      "wins_a": 1614,
+      "wins_b": 386
+    },
+    {
+      "a": "PinguimHunter",
+      "b": "versao_8",
+      "wins_a": 912,
+      "wins_b": 1088
+    },
+    {
+      "a": "SdTBotChen_v1",
+      "b": "SdTBotCRM_v2",
+      "wins_a": 1015,
+      "wins_b": 985
+    },
+    {
+      "a": "SdTBotChen_v1",
+      "b": "VelvaNeles",
+      "wins_a": 707,
+      "wins_b": 1293
+    },
+    {
+      "a": "SdTBotChen_v1",
+      "b": "versao_8",
+      "wins_a": 259,
+      "wins_b": 1741
+    },
+    {
+      "a": "SdTBotCRM_v2",
+      "b": "VelvaNeles",
+      "wins_a": 711,
+      "wins_b": 1289
+    },
+    {
+      "a": "SdTBotCRM_v2",
+      "b": "versao_8",
+      "wins_a": 248,
+      "wins_b": 1752
+    },
+    {
+      "a": "VelvaNeles",
+      "b": "versao_8",
+      "wins_a": 629,
+      "wins_b": 1371
+    }
+  ],
+  "leaderboard": [
+    {
+      "rank": 1,
+      "name": "versao_8",
+      "matchup_wins": 15.0,
+      "total_matchups": 16,
+      "avg_wr": 0.6840625,
+      "margin": 0.005093655424256207
+    },
+    {
+      "rank": 2,
+      "name": "Pinguim_Rei",
+      "matchup_wins": 14.0,
+      "total_matchups": 16,
+      "avg_wr": 0.6614375,
+      "margin": 0.005184954091207529
+    },
+    {
+      "rank": 3,
+      "name": "versao_1",
+      "matchup_wins": 13.0,
+      "total_matchups": 16,
+      "avg_wr": 0.63690625,
+      "margin": 0.005269000311183141
+    },
+    {
+      "rank": 4,
+      "name": "player_bdHANDY - João Carvalho",
+      "matchup_wins": 13.0,
+      "total_matchups": 16,
+      "avg_wr": 0.56540625,
+      "margin": 0.005431291632423686
+    },
+    {
+      "rank": 5,
+      "name": "PinguimHunter",
+      "matchup_wins": 12.0,
+      "total_matchups": 16,
+      "avg_wr": 0.62078125,
+      "margin": 0.005316126160306481
+    },
+    {
+      "rank": 6,
+      "name": "NEMESIS",
+      "matchup_wins": 12.0,
+      "total_matchups": 16,
+      "avg_wr": 0.61040625,
+      "margin": 0.005343140061640771
+    },
+    {
+      "rank": 7,
+      "name": "AdaptiveMesgus",
+      "matchup_wins": 10.0,
+      "total_matchups": 16,
+      "avg_wr": 0.62184375,
+      "margin": 0.005313214636671644
+    },
+    {
+      "rank": 8,
+      "name": "ITABot",
+      "matchup_wins": 9.0,
+      "total_matchups": 16,
+      "avg_wr": 0.527375,
+      "margin": 0.005470149509425565
+    },
+    {
+      "rank": 9,
+      "name": "JonatasBot",
+      "matchup_wins": 8.0,
+      "total_matchups": 16,
+      "avg_wr": 0.50478125,
+      "margin": 0.005478116064377874
+    },
+    {
+      "rank": 10,
+      "name": "BotITAJr",
+      "matchup_wins": 7.0,
+      "total_matchups": 16,
+      "avg_wr": 0.55684375,
+      "margin": 0.005442847876775245
+    },
+    {
+      "rank": 11,
+      "name": "pembaBot",
+      "matchup_wins": 7.0,
+      "total_matchups": 16,
+      "avg_wr": 0.5208125,
+      "margin": 0.00547361846708758
+    },
+    {
+      "rank": 12,
+      "name": "VelvaNeles",
+      "matchup_wins": 5.0,
+      "total_matchups": 16,
+      "avg_wr": 0.43640625,
+      "margin": 0.005433875043379314
+    },
+    {
+      "rank": 13,
+      "name": "SdTBotChen_v1",
+      "matchup_wins": 4.0,
+      "total_matchups": 16,
+      "avg_wr": 0.38553125,
+      "margin": 0.005332867284873698
+    },
+    {
+      "rank": 14,
+      "name": "BotAquamanT30",
+      "matchup_wins": 3.0,
+      "total_matchups": 16,
+      "avg_wr": 0.39515625,
+      "margin": 0.005356573994608568
+    },
+    {
+      "rank": 15,
+      "name": "SdTBotCRM_v2",
+      "matchup_wins": 3.0,
+      "total_matchups": 16,
+      "avg_wr": 0.37453125,
+      "margin": 0.005303076843913462
+    },
+    {
+      "rank": 16,
+      "name": "Jagas",
+      "matchup_wins": 1.0,
+      "total_matchups": 16,
+      "avg_wr": 0.21603125,
+      "margin": 0.004509088374634464
+    },
+    {
+      "rank": 17,
+      "name": "Vitor_Filgueiras",
+      "matchup_wins": 0.0,
+      "total_matchups": 16,
+      "avg_wr": 0.1816875,
+      "margin": 0.004224771252845198
+    }
+  ]
+}

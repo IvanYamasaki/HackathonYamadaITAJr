@@ -18,8 +18,22 @@ Imagens salvas em results/:
     matrix_fase1.png     — Heatmap de win rates (linha vs coluna)
     leaderboard_fase1.png — Barras horizontais com pontuação e IC 95%
 """
+import os
+
+# Força bibliotecas de álgebra (numpy/BLAS) a usarem 1 thread por processo.
+# Sem isso, cada worker do torneio dispara N threads de BLAS → N×workers threads
+# em CPU-bound → relógio de cada decisão infla e estoura o timeout de 50 ms.
+# Precisa vir ANTES de importar numpy/matplotlib.
+for _var in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+             "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
+    os.environ.setdefault(_var, "1")
+
 import argparse
+import contextlib
+import io
+import json
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import matplotlib
@@ -165,7 +179,7 @@ def plot_leaderboard(
         x_end = bar.get_width() + mg
         ax.text(
             x_end + 0.012, bar.get_y() + bar.get_height() / 2,
-            f"{mw}/{tm} pts  |  {wr:.1%} [±{mg:.1%}]",
+            f"{mw:g}/{tm} pts  |  {wr:.1%} [±{mg:.1%}]",
             va="center", fontsize=9, color="#222222",
         )
 
@@ -177,7 +191,7 @@ def plot_leaderboard(
     ax.grid(axis="x", alpha=0.25, linestyle="--")
     ax.set_title(
         f"Leaderboard — {phase_label}\n"
-        f"({tournament.games_per_matchup} partidas/confronto  ·  pontuação = confrontos vencidos  ·  IC 95% Wald)",
+        f"({tournament.games_per_matchup} partidas/confronto  ·  pontuação = confrontos vencidos (empate = ½)  ·  IC 95% Wald)",
         fontsize=13, fontweight="bold", pad=12,
     )
 
@@ -199,6 +213,68 @@ def _slug(label: str) -> str:
     return label.lower().replace(" ", "_")
 
 
+# ─── Salvamento de logs ─────────────────────────────────────────────────────────
+
+def save_tournament_log(
+    tournament: HeadsUpTournament,
+    phase_label: str,
+    output_dir: Path,
+) -> tuple[Path, Path]:
+    """
+    Salva os resultados agregados do torneio:
+      - log_<slug>_<timestamp>.json : config + matriz bruta de vitórias + leaderboard
+      - console_<slug>.txt           : matriz de confrontos + leaderboard formatados
+
+    Retorna (caminho_json, caminho_txt).
+    """
+    slug = _slug(phase_label)
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    # Matriz bruta de vitórias por confronto (uma linha por par)
+    matchups = [
+        {"a": a, "b": b, "wins_a": wins[0], "wins_b": wins[1]}
+        for (a, b), wins in tournament.results.items()
+    ]
+
+    # Leaderboard: (name, matchup_wins, total_matchups, avg_wr, margin)
+    leaderboard = [
+        {
+            "rank": rank,
+            "name": name,
+            "matchup_wins": matchup_wins,
+            "total_matchups": total_matchups,
+            "avg_wr": avg_wr,
+            "margin": margin,
+        }
+        for rank, (name, matchup_wins, total_matchups, avg_wr, margin)
+        in enumerate(tournament._build_leaderboard_rows(), 1)
+    ]
+
+    n_bots = len(set(n for pair in tournament.results for n in pair))
+    payload = {
+        "phase": phase_label,
+        "games_per_matchup": tournament.games_per_matchup,
+        "timestamp": timestamp,
+        "n_bots": n_bots,
+        "matchups": matchups,
+        "leaderboard": leaderboard,
+    }
+
+    json_path = output_dir / f"log_{slug}_{timestamp}.json"
+    json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"  Log salvo: {json_path}")
+
+    # Captura a saída formatada (matriz + leaderboard) reusando print_leaderboard()
+    buffer = io.StringIO()
+    with contextlib.redirect_stdout(buffer):
+        tournament.print_leaderboard()
+    txt_path = output_dir / f"console_{slug}.txt"
+    txt_path.write_text(buffer.getvalue(), encoding="utf-8")
+    print(f"  Console salvo: {txt_path}")
+
+    return json_path, txt_path
+
+
 # ─── Runner de fase ───────────────────────────────────────────────────────────
 
 def run_phase(
@@ -207,6 +283,7 @@ def run_phase(
     games_per_matchup: int,
     verbose: bool,
     bot_whitelist: set[str] | None = None,
+    workers: int | None = None,
 ) -> HeadsUpTournament:
     """Roda uma fase do torneio e gera as imagens. Retorna o objeto do torneio."""
     print(f"\nTorneio de Poker — ITA Jr × Yamada  [{phase_label.upper()}]")
@@ -221,6 +298,7 @@ def run_phase(
         games_per_matchup=games_per_matchup,
         verbose=verbose,
         bot_whitelist=bot_whitelist,
+        workers=workers,
     )
     t.run()
 
@@ -233,6 +311,9 @@ def run_phase(
     all_names = list(dict.fromkeys(n for pair in t.results for n in pair))
     n_advancing = max(2, len(all_names) // 2) if phase_label.lower() == "fase 1" else None
     plot_leaderboard(t, phase_label, results_dir, n_advancing=n_advancing)
+
+    print("\nSalvando logs…")
+    save_tournament_log(t, phase_label, results_dir)
 
     return t
 
@@ -254,6 +335,8 @@ def main() -> None:
                         help="Partidas por confronto (padrão: 2000)")
     parser.add_argument("--verbose", action="store_true",
                         help="Imprime cada ação (muito lento)")
+    parser.add_argument("--workers", type=int, default=None,
+                        help="Nº de processos paralelos (padrão: todos os núcleos)")
     args = parser.parse_args()
 
     players_dir = ROOT / "players"
@@ -268,10 +351,11 @@ def main() -> None:
             sys.exit(1)
         whitelist = {name.strip() for name in args.bots.split(",") if name.strip()}
         run_phase("Fase 2", players_dir, args.games_per_matchup, args.verbose,
-                  bot_whitelist=whitelist)
+                  bot_whitelist=whitelist, workers=args.workers)
     else:
         # Fase 1 (padrão quando nenhum flag ou --phase1 explícito)
-        t = run_phase("Fase 1", players_dir, args.games_per_matchup, args.verbose)
+        t = run_phase("Fase 1", players_dir, args.games_per_matchup, args.verbose,
+                      workers=args.workers)
 
         all_names = list(dict.fromkeys(n for pair in t.results for n in pair))
         n_advancing = max(2, len(all_names) // 2)
