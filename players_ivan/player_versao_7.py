@@ -1,0 +1,345 @@
+"""
+versao_7 — versao_6 com parâmetros otimizados via SPSA (optimize_v6.py).
+
+Lógica idêntica ao versao_6. Apenas as 5 constantes comportamentais foram
+substituídas pelos melhores valores encontrados pelo otimizador SPSA contra
+versao_1 em 1000 partidas por avaliação:
+
+  iter 123 → WR 55.1% ± 3.1% vs versao_1
+
+Parâmetros vencedores:
+  BLUFF_FOLD_FREQ       0.0649   (era 0.05 no v6 default)
+  OVERBET_FREQ          0.1567   (era 0.20)
+  OVERBET_MULTIPLIER    1.7353   (era 1.60)
+  BLUFF_BET_FRACTION    0.6449   (era 0.75)
+  BLUFF_RAISE_FACTOR    2.6709   (era 2.50)
+
+Interpretação:
+  - Blefes em situações de fold mais raros (~6.5% vs 10% inicial).
+  - Overbets menos frequentes mas maiores quando ocorrem (mistura
+    valor + raros sobre-apostas grandes — clássico de pro player).
+  - Blefes pot-sized mais conservadores (64% do pote vs 75%) — sizing
+    coerente com value bets, dificulta leitura.
+  - Raise-blefe mais agressivo (2.67x vs 2.50x) — pressão maior quando
+    se decide blefar de fato.
+"""
+from __future__ import annotations
+
+import random
+import sys
+from collections import Counter
+from itertools import combinations
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from players.player import Player
+from game.game_view import GameView
+from cards.cards import Card, Hand
+from cards.sequences import (
+    BASE_DESEMPATE,
+    RANK_DOIS_PARES,
+    RANK_STRAIGHT,
+    RANK_TRINCA,
+    RANK_UM_PAR,
+    score_cinco_cartas,
+    valor_carta,
+)
+
+
+def _best_score(cards: list[Card]) -> int:
+    if len(cards) < 5:
+        return 0
+    return max(score_cinco_cartas(list(c)) for c in combinations(cards, 5))
+
+
+def _rank_of(score: int) -> int:
+    return score // BASE_DESEMPATE
+
+
+def _has_flush_draw(cards: list[Card]) -> bool:
+    counts = Counter(c.suit for c in cards)
+    return any(n >= 4 for n in counts.values())
+
+
+def _has_straight_draw(cards: list[Card]) -> tuple[bool, bool]:
+    vals = {valor_carta(c) for c in cards}
+    if 14 in vals:
+        vals = vals | {1}
+    sorted_vals = sorted(vals)
+
+    open_ended = False
+    gutshot = False
+    for v in sorted_vals:
+        run = sum(1 for k in range(4) if (v + k) in vals)
+        if run == 4:
+            open_ended = True
+        present = [k for k in range(5) if (v + k) in vals]
+        if len(present) == 4 and 0 in present and 4 in present:
+            gutshot = True
+    return open_ended, gutshot
+
+
+def _preflop_strength(hand: tuple[Card, ...]) -> float:
+    c1, c2 = hand[0], hand[1]
+    v1, v2 = valor_carta(c1), valor_carta(c2)
+    hi, lo = max(v1, v2), min(v1, v2)
+    suited = c1.suit == c2.suit
+    pair = v1 == v2
+    gap = hi - lo - 1
+
+    if pair:
+        return 0.45 + (v1 - 2) * 0.033
+
+    base = 0.28
+    base += (hi - 2) * 0.013
+    base += (lo - 2) * 0.008
+    if suited:
+        base += 0.045
+    if gap == 0:
+        base += 0.030
+    elif gap == 1:
+        base += 0.015
+    elif gap >= 4:
+        base -= 0.025
+    if hi == 14:
+        base += 0.015
+    return max(0.20, min(0.78, base))
+
+
+class Versao7(Player):
+
+    # Parâmetros otimizados via SPSA (optimize_v6.py iter 123, WR 55.1% vs v1)
+    BLUFF_FOLD_FREQ = 0.0649
+    OVERBET_FREQ = 0.1567
+    OVERBET_MULTIPLIER = 1.7353
+    BLUFF_BET_FRACTION = 0.6449
+    BLUFF_RAISE_FACTOR = 2.6709
+
+    def __init__(self, name, hand, chips):
+        super().__init__(name, hand, chips)
+        self._rng = random.Random()
+
+    # ─── Decisão principal ────────────────────────────────────────────────
+
+    def decision(self, gv: GameView) -> int:
+        if gv.to_call >= gv.my_chips:
+            return self._defend_allin(gv)
+
+        stack_bb = gv.my_chips / max(1, gv.big_blind)
+        if stack_bb <= 15 and len(gv.board) == 0:
+            return self._push_fold_preflop(gv, stack_bb)
+
+        if len(gv.board) == 0:
+            return self._preflop(gv)
+        return self._postflop(gv)
+
+    # ─── Pré-flop ─────────────────────────────────────────────────────────
+
+    def _preflop(self, gv: GameView) -> int:
+        strength = _preflop_strength(gv.my_hand)
+        bb = gv.big_blind
+        i_am_bb = (gv.dealer_position == 0)
+
+        unopened = gv.current_bet <= bb
+
+        if unopened:
+            if strength >= 0.62:
+                target = self._maybe_overbet(gv, 3 * bb)
+                return self._raise_to(gv, target)
+            if strength >= 0.50:
+                return self._raise_to(gv, int(2.5 * bb))
+            if strength >= 0.40:
+                return 0
+            if i_am_bb:
+                return 0
+            if strength <= 0.30:
+                return self._fold_or_bluff(gv)
+            return 0
+
+        raise_size_bb = gv.current_bet / bb
+        pot_odds = gv.to_call / (gv.pot + gv.to_call)
+
+        if strength >= 0.72:
+            target = self._maybe_overbet(gv, int(gv.current_bet * 3))
+            return self._raise_to(gv, target)
+        if strength >= 0.58:
+            if self._rng.random() < 0.20:
+                return self._raise_to(gv, int(gv.current_bet * 3))
+            return 0
+        if strength >= 0.45 and raise_size_bb <= 4:
+            return 0
+        if strength >= 0.40 and pot_odds < 0.18:
+            return 0
+        return self._fold_or_bluff(gv)
+
+    # ─── Pós-flop ─────────────────────────────────────────────────────────
+
+    def _postflop(self, gv: GameView) -> int:
+        all_cards = list(gv.my_hand) + list(gv.board)
+        score = _best_score(all_cards)
+        rank = _rank_of(score)
+
+        if rank >= RANK_STRAIGHT:
+            tier = "monster"
+        elif rank in (RANK_TRINCA, RANK_DOIS_PARES):
+            tier = "strong"
+        elif rank == RANK_UM_PAR:
+            tier = self._pair_tier(gv)
+        else:
+            tier = "weak"
+
+        cards_to_come = 5 - len(gv.board)
+        flush_dr = _has_flush_draw(all_cards) if cards_to_come > 0 else False
+        oesd, gut = (_has_straight_draw(all_cards) if cards_to_come > 0 else (False, False))
+        strong_draw = flush_dr or oesd
+
+        to_call = gv.to_call
+        pot = gv.pot
+
+        if tier == "monster":
+            target = self._sizing(gv, 0.75)
+            if to_call == 0:
+                target = self._maybe_overbet(gv, target)
+                return self._raise_to(gv, target)
+            if self._rng.random() < 0.15:
+                return 0
+            raise_target = max(target, int(gv.current_bet * 2.5))
+            raise_target = self._maybe_overbet(gv, raise_target)
+            return self._raise_to(gv, raise_target)
+
+        if tier == "strong":
+            target = self._sizing(gv, 0.6)
+            if to_call == 0:
+                if self._rng.random() < 0.85:
+                    target = self._maybe_overbet(gv, target)
+                    return self._raise_to(gv, target)
+                return 0
+            if gv.current_bet >= pot * 0.9:
+                if self._rng.random() < 0.7:
+                    return 0
+                return self._fold_or_bluff(gv)
+            if self._rng.random() < 0.25:
+                rt = self._maybe_overbet(gv, int(gv.current_bet * 2.5))
+                return self._raise_to(gv, rt)
+            return 0
+
+        if tier == "medium":
+            if to_call == 0:
+                if self._rng.random() < 0.4:
+                    return self._raise_to(gv, self._sizing(gv, 0.4))
+                return 0
+            pot_odds = to_call / (pot + to_call)
+            if pot_odds < 0.25 and to_call <= 4 * gv.big_blind:
+                return 0
+            return self._fold_or_bluff(gv)
+
+        # tier == "weak"
+        if strong_draw and cards_to_come > 0:
+            outs = 9 if flush_dr else (8 if oesd else 4)
+            multiplier = 4 if cards_to_come == 2 else 2
+            equity = outs * multiplier / 100
+            if to_call == 0:
+                if self._rng.random() < 0.5:
+                    return self._raise_to(gv, self._sizing(gv, 0.5))
+                return 0
+            pot_odds = to_call / (pot + to_call)
+            if equity > pot_odds:
+                return 0
+            return self._fold_or_bluff(gv)
+
+        if to_call == 0:
+            if self._rng.random() < 0.10:
+                return self._raise_to(gv, self._sizing(gv, 0.5))
+            return 0
+        return self._fold_or_bluff(gv)
+
+    # ─── Hooks de blefe e overbet ─────────────────────────────────────────
+
+    def _fold_or_bluff(self, gv: GameView) -> int:
+        if self._rng.random() >= self.BLUFF_FOLD_FREQ:
+            return -1
+        if gv.to_call == 0:
+            return self._raise_to(gv, self._sizing(gv, self.BLUFF_BET_FRACTION))
+        target = int(gv.current_bet * self.BLUFF_RAISE_FACTOR)
+        return self._raise_to(gv, target)
+
+    def _maybe_overbet(self, gv: GameView, normal_target: int) -> int:
+        if self._rng.random() >= self.OVERBET_FREQ:
+            return normal_target
+        invested = gv.current_bet - gv.to_call
+        delta = normal_target - invested
+        bigger = invested + int(delta * self.OVERBET_MULTIPLIER)
+        return bigger
+
+    # ─── Helpers ──────────────────────────────────────────────────────────
+
+    def _pair_tier(self, gv: GameView) -> str:
+        my_vals = [valor_carta(c) for c in gv.my_hand]
+        board_vals = [valor_carta(c) for c in gv.board]
+        all_vals = my_vals + board_vals
+        counts = Counter(all_vals)
+        pair_value = max((v for v, n in counts.items() if n >= 2), default=0)
+        if pair_value == 0:
+            return "weak"
+
+        top_board = max(board_vals) if board_vals else 0
+
+        if my_vals.count(pair_value) == 2:
+            return "strong" if pair_value > top_board else "medium"
+
+        if pair_value == top_board and pair_value in my_vals:
+            kicker = max((v for v in my_vals if v != pair_value), default=0)
+            return "strong" if kicker >= 12 else "medium"
+
+        if pair_value >= 10 and pair_value in my_vals:
+            return "medium"
+        return "weak"
+
+    def _sizing(self, gv: GameView, fraction: float) -> int:
+        invested = gv.current_bet - gv.to_call
+        bet_amount = max(gv.big_blind, int(gv.pot * fraction))
+        return invested + gv.to_call + bet_amount
+
+    def _raise_to(self, gv: GameView, target_total: int) -> int:
+        invested = gv.current_bet - gv.to_call
+        max_total = invested + gv.my_chips
+        target = min(target_total, max_total)
+        if target <= gv.current_bet:
+            return target
+        return target
+
+    def _push_fold_preflop(self, gv: GameView, stack_bb: float) -> int:
+        strength = _preflop_strength(gv.my_hand)
+        threshold = 0.40 + max(0.0, (15 - stack_bb)) * 0.005
+        if strength >= threshold:
+            return self._shove(gv)
+        if gv.to_call == 0:
+            return 0
+        pot_odds = gv.to_call / (gv.pot + gv.to_call)
+        if strength >= 0.42 and pot_odds <= 0.30:
+            return 0
+        return self._fold_or_bluff(gv)
+
+    def _shove(self, gv: GameView) -> int:
+        invested = gv.current_bet - gv.to_call
+        return invested + gv.my_chips
+
+    def _defend_allin(self, gv: GameView) -> int:
+        pot_odds = gv.to_call / (gv.pot + gv.to_call)
+        if len(gv.board) == 0:
+            strength = _preflop_strength(gv.my_hand)
+            min_strength = 0.55 - (0.30 - min(pot_odds, 0.30)) * 0.5
+            return 0 if strength >= min_strength else -1
+
+        score = _best_score(list(gv.my_hand) + list(gv.board))
+        rank = _rank_of(score)
+        if rank >= RANK_DOIS_PARES:
+            return 0
+        if rank == RANK_UM_PAR and pot_odds <= 0.40:
+            return 0
+        return -1
+
+
+def create_player() -> Player:
+    return Versao7("versao_7", Hand(), 0)
