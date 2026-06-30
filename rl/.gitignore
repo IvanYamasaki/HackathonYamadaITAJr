@@ -1,0 +1,27 @@
+# O que NÃO é versionado nesta pasta (e por quê).
+# O essencial para JOGAR e DOCUMENTAR está no git: código, pesos de deploy
+# (weights_v15/16.npz), os dois treino.log e os gráficos em assets_relatorio/.
+# O que fica de fora é pesado, regenerável ou obsoleto:
+
+# Checkpoints do PyTorch (estado de treino p/ retomar/re-exportar). Os bots
+# rodam a partir dos .npz; estes .pt se regeram treinando de novo.
+runs/**/checkpoints/
+*.pt
+
+# Gráfico de evolução de cada run: já versionado em assets_relatorio/.
+runs/**/evolucao.png
+
+# Processo anterior (warm-start, pool enxuto) — superado pelo retreino 2026-06-27.
+_arquivo_pre_retreino_2026-06-27/
+
+# Backup local dos pesos do latest.pt do v16 (antes de deployar o best.pt).
+weights_v16_latest_backup.npz
+
+# Saídas auto-geradas / descartáveis.
+comparacao.png
+contagem_best.py
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
